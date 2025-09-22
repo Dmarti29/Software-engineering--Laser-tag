@@ -3,7 +3,7 @@
 ## Team Members
 | GitHub Username | Real Name |
 |----------------|-----------|
-| [danielmartinez] | Daniel Martinez |
+| [danielmartinez] |  Martinez |
 | [carlos] | Carlos |
 | [ruby] | Ruby |
 | [rivas] | Rivas |
