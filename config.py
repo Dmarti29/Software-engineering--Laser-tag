@@ -1,13 +1,13 @@
 
+# config.py
 import os
 
-# Database Configuration
 DATABASE_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'database': os.getenv('DB_NAME', 'photon'),
-    'user': os.getenv('DB_USER', 'postgres'),
-    'password': os.getenv('DB_PASSWORD', ''),
-    'port': int(os.getenv('DB_PORT', 5432))
+    "host": os.getenv("DB_HOST", "localhost"),
+    "database": os.getenv("DB_NAME", "photon"),
+    "user": os.getenv("DB_USER", "student"),
+    "password": os.getenv("DB_PASSWORD", "student"),    
+    "port": int(os.getenv("DB_PORT", "5432")),
 }
 
 # UDP Socket Configuration 
@@ -17,7 +17,7 @@ UDP_CONFIG = {
     'network_address': '127.0.0.1'  # localhost
 }
 
-# Game Configuration
+
 GAME_CONFIG = {
     'max_players_per_team': 15,
     'game_duration_minutes': 6,

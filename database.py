@@ -39,7 +39,7 @@ class LaserTagDatabase:
             logger.info("Successfully connected to PostgreSQL database")
             return True
         except Error as e:
-            logger.error(f"Error connecting to PostgreSQL database: {e}")
+            logger.error(f"Database connection failed: {e}")
             return False
     
     def disconnect_from_db(self):
@@ -78,16 +78,14 @@ class LaserTagDatabase:
                 return False
                 
         except Error as e:
-            logger.error(f"Database connection test failed: {e}")
+            logger.error(f"Connection test failed: {e}")
             return False
     
     def get_player_by_id(self, player_id: int) -> Optional[str]:
         """
         Retrieve player codename by player ID.
-        
         Args:
             player_id (int): Player ID to search for
-            
         Returns:
             Optional[str]: Player codename if found, None otherwise
         """
@@ -116,13 +114,12 @@ class LaserTagDatabase:
     def add_player(self, player_id: int, codename: str) -> bool:
        #adds a player to the database   
         try:
-            # Validate codename length
             if len(codename) > 30:
-                logger.error(f"Codename '{codename}' exceeds 30 character limit")
+                logger.error(f"Codename too long: {codename}")
                 return False
             
             if not codename.strip():
-                logger.error("Codename cannot be empty")
+                logger.error("Codename is empty")
                 return False
             
             if not self.connection or self.connection.closed:
@@ -140,14 +137,13 @@ class LaserTagDatabase:
                     "UPDATE players SET codename = %s WHERE id = %s",
                     (codename.strip(), player_id)
                 )
-                logger.info(f"Updated player ID {player_id}: {existing_codename} -> {codename}")
+                logger.info(f"Updated player {player_id}: {codename}")
             else:
-                # Insert new player
                 cursor.execute(
                     "INSERT INTO players (id, codename) VALUES (%s, %s)",
                     (player_id, codename.strip())
                 )
-                logger.info(f"Added new player ID {player_id}: {codename}")
+                logger.info(f"Added player {player_id}: {codename}")
             
             self.connection.commit()
             cursor.close()
@@ -221,71 +217,10 @@ class LaserTagDatabase:
 
 # Convenience functions for easy integration
 def create_database_connection(host="localhost", database="photon", user="postgres", password=""):
-    """
-    Create and return a LaserTagDatabase instance.
     
-    Args:
-        host (str): Database host
-        database (str): Database name
-        user (str): Database user
-        password (str): Database password
-        
-    Returns:
-        LaserTagDatabase: Database handler instance
-    """
     db = LaserTagDatabase(host=host, database=database, user=user, password=password)
     return db
 
 
-# Example usage and testing
 if __name__ == "__main__":
-    """
-    Test the database functionality
-    """ 
-    print("Testing Laser Tag Database Module")
-    print("=" * 40)
-    
-    # Create database instance
-    db = LaserTagDatabase()
-    
-    # Test connection
-    print("1. Testing database connection...")
-    if db.test_connection():
-        print("✓ Database connection successful")
-    else:
-        print("✗ Database connection failed")
-        exit(1)
-    
-    print("\n2. Testing player addition...")
-    
-    # Add first test player
-    if db.add_player(100, "TestPlayer1"):
-        print("✓ Added TestPlayer1 (ID: 100)")
-    else:
-        print("✗ Failed to add TestPlayer1")
-    
-    # Add second test player
-    if db.add_player(101, "TestPlayer2"):
-        print("✓ Added TestPlayer2 (ID: 101)")
-    else:
-        print("✗ Failed to add TestPlayer2")
-    
-    # Test retrieving players
-    print("\n3. Testing player retrieval...")
-    codename = db.get_player_by_id(100)
-    if codename:
-        print(f"✓ Retrieved player 100: {codename}")
-    else:
-        print("✗ Failed to retrieve player 100")
-    
-    # Test getting all players
-    print("\n4. Testing get all players...")
-    all_players = db.get_all_players()
-    print(f"Total players in database: {len(all_players)}")
-    for player_id, codename in all_players:
-        print(f"  ID: {player_id}, Codename: {codename}")
-    
-    # Test clearing players (uncomment to test)
- 
-    db.disconnect_from_db()
-    print("\n✓ Database testing completed")
+    pass

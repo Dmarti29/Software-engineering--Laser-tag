@@ -38,7 +38,7 @@ def setup_udp_sockets():
         
         return True
     except Exception as e:
-        logger.error(f"Error setting up UDP sockets: {e}")
+        logger.error(f"UDP setup failed: {e}")
         return False
 
 #broadcasts equipment id to all devices on the network
@@ -52,7 +52,7 @@ def broadcast_equipment_id(equipment_id):
             logger.info(f"Broadcasted equipment ID: {equipment_id}")
             return True
     except Exception as e:
-        logger.error(f"Error broadcasting equipment ID {equipment_id}: {e}")
+        logger.error(f"Broadcast failed for {equipment_id}: {e}")
         return False
 
 #receives udp messages from other devices on the network
@@ -70,7 +70,7 @@ def udp_receiver_thread():
         except socket.timeout:
             continue
         except Exception as e:
-            logger.error(f"Error in UDP receiver: {e}")
+            logger.error(f"UDP receiver error: {e}")
             time.sleep(1)
 
 #processes received udp data
@@ -91,7 +91,7 @@ def process_received_udp_data(message):
                 logger.info("Green base scored!")
                 
     except Exception as e:
-        logger.error(f"Error processing UDP data '{message}': {e}")
+        logger.error(f"Failed to process UDP data '{message}': {e}")
 
 #gets all players from the database
 @app.route('/players', methods=['GET'])
@@ -237,7 +237,7 @@ def broadcast_id(equipment_id):
             return jsonify({'error': 'Failed to broadcast equipment ID'}), 500
             
     except Exception as e:
-        logger.error(f"Error broadcasting equipment ID {equipment_id}: {e}")
+        logger.error(f"Broadcast failed for {equipment_id}: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 
@@ -281,7 +281,7 @@ def health_check():
 #runs server
 if __name__ == '__main__':
     if not db.test_connection():
-        logger.error("Failed to connect to database. Please check your database configuration.")
+        logger.error("Failed to connect to database.")
         exit(1)
     
     if not setup_udp_sockets():
