@@ -39,35 +39,41 @@ class PlayerEntry:
         header_frame = tk.Frame(entries_frame)
         header_frame.pack(fill="x", pady=2)
         
-        name_label = tk.Label(header_frame, text="Player Name", font=("Arial", 10, "bold"))
-        name_label.pack(side="left", fill="x", expand=True)
+        # Instructions label
+        instruction_label = tk.Label(header_frame, text="Enter Player ID first to lookup or create player", 
+                                   font=("Arial", 9, "italic"), fg="gray")
+        instruction_label.pack(fill="x", pady=(0, 5))
         
-        id_label = tk.Label(header_frame, text="Player ID", font=("Arial", 10, "bold"), width=8)
+        # Column headers
+        columns_frame = tk.Frame(header_frame)
+        columns_frame.pack(fill="x")
+        
+        id_label = tk.Label(columns_frame, text="Player ID (Required)", font=("Arial", 10, "bold"), width=15)
         id_label.pack(side="left", padx=5)
         
+        name_label = tk.Label(columns_frame, text="Player Name (Auto-filled or Enter New)", font=("Arial", 10, "bold"))
+        name_label.pack(side="left", fill="x", expand=True, padx=5)
+        
         # Empty space for button column
-        tk.Label(header_frame, text="", width=5).pack(side="right")
+        tk.Label(columns_frame, text="", width=8).pack(side="right")
         
         # Create player slots (10 slots per team)
         for i in range(10):
             slot_frame = tk.Frame(entries_frame)
             slot_frame.pack(fill="x", pady=2)
             
-            # Create name entry field
-            entry = tk.Entry(slot_frame, font=("Arial", 12), justify="center")
-            entry.pack(side="left", fill="x", expand=True)
-            self.player_slots.append(entry)
-            
-            # Create ID entry field
-            id_entry = tk.Entry(slot_frame, font=("Arial", 12), justify="center", width=8)
-            # Default to the auto-generated ID
-            default_id = team_id_generator(self.team_name, i)
-            id_entry.insert(0, str(default_id))
+            # Create ID entry field (first, as it's required)
+            id_entry = tk.Entry(slot_frame, font=("Arial", 12), justify="center", width=15)
             id_entry.pack(side="left", padx=5)
             self.player_id_entries.append(id_entry)
             
-            # Create add button
-            button = tk.Button(slot_frame, text="Add", 
+            # Create name entry field
+            entry = tk.Entry(slot_frame, font=("Arial", 12), justify="center")
+            entry.pack(side="left", fill="x", expand=True, padx=5)
+            self.player_slots.append(entry)
+            
+            # Create lookup/add button
+            button = tk.Button(slot_frame, text="Lookup/Add", 
                              command=lambda idx=i: self.add_player(idx))
             button.pack(side="right", padx=5)
             self.player_buttons.append(button)
@@ -103,11 +109,9 @@ class PlayerEntry:
         for entry in self.player_slots:
             entry.delete(0, tk.END)
         
-        # Reset player IDs to default values
-        for i, id_entry in enumerate(self.player_id_entries):
+        # Clear player IDs (no default values)
+        for id_entry in self.player_id_entries:
             id_entry.delete(0, tk.END)
-            default_id = team_id_generator(self.team_name, i)
-            id_entry.insert(0, str(default_id))
     
     def add_player(self, index):
         """Add a player to the backend.
@@ -116,16 +120,15 @@ class PlayerEntry:
         - If a codename exists for that ID, populate the name field and notify the user (do not create).
         - If the player does not exist, require the user to enter a codename and then add the player.
         """
-        # Get custom player ID from entry field
+        # Get player ID from entry field (required)
         try:
             player_id_text = self.player_id_entries[index].get().strip()
             if not player_id_text:
-                # Use default ID if empty
-                player_id = team_id_generator(self.team_name, index)
-            else:
-                player_id = int(player_id_text)
+                messagebox.showerror("Error", "Player ID is required. Please enter a Player ID first.")
+                return
+            player_id = int(player_id_text)
         except ValueError:
-            messagebox.showerror("Error", "Player ID must be a number")
+            messagebox.showerror("Error", "Player ID must be a valid number")
             return
 
         # First, try to fetch existing player by ID from backend
