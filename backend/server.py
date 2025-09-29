@@ -29,9 +29,11 @@ def setup_udp_sockets():
     try:
         udp_broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        udp_broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         logger.info(f"UDP broadcast socket created for port {broadcast_port}")
         
         udp_receive_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        udp_receive_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         udp_receive_socket.bind(('', receive_port))
         udp_receive_socket.settimeout(1.0)
         logger.info(f"UDP receive socket created for port {receive_port}")

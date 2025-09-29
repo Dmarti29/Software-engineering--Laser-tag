@@ -31,6 +31,9 @@ psql postgres -c "CREATE DATABASE photon WITH OWNER student;" || echo "Database 
 echo "Granting privileges..."
 psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE photon TO student;"
 
+echo "Creating players table..."
+psql -U student -d photon -c "CREATE TABLE IF NOT EXISTS players (id INTEGER PRIMARY KEY, codename VARCHAR(30) NOT NULL);"
+
 echo ""
 echo "==== Database Setup Complete ===="
 echo "Database: photon"

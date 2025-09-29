@@ -2,7 +2,7 @@
 import os
 
 DATABASE_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
+    "host": os.getenv("DB_HOST", "/var/run/postgresql"),
     "database": os.getenv("DB_NAME", "photon"),
     "user": os.getenv("DB_USER", "student"),
     "password": os.getenv("DB_PASSWORD", "student"),    

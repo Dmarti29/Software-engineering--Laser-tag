@@ -3,6 +3,18 @@
 # Photon Laser Tag System Installation Script
 
 echo "==== Installing Photon Laser Tag System ===="
+
+# Check for root/sudo
+if [ "$EUID" -ne 0 ]; then 
+    echo "Please run with sudo"
+    exit 1
+fi
+
+# Install system dependencies
+echo "Installing system dependencies..."
+apt-get update
+apt-get install -y python3-tk python3-pil python3-pil.imagetk python3-flask python3-psycopg2 python3-flask-cors
+
 echo "Creating Python virtual environment..."
 
 # Create virtual environment if it doesn't exist

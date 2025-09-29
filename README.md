@@ -58,21 +58,23 @@ This script will create the required PostgreSQL user and database:
 
 ## Running the Application
 
-### Development Mode
+The application consists of a backend server and a frontend GUI. You need to run both in separate terminals:
 
-Run the application in development mode (no database required):
-
+1. Start the backend server:
 ```bash
-python main.py
+PYTHONPATH=/home/student/Software-engineering--Laser-tag python3 backend/server.py
 ```
 
-### Production Mode
-
-When running on a VM with a configured database:
-
+2. In a new terminal, start the frontend:
 ```bash
-python main.py
+PYTHONPATH=/home/student/Software-engineering--Laser-tag python3 main.py
 ```
+
+The frontend should open with:
+- A splash screen showing the company logo
+- Then the main interface with red and green team sections
+- Network settings at the bottom
+- Game control buttons
 
 ## Network Configuration
 

@@ -1,0 +1,19 @@
+INFO:backend.database:Successfully connected to PostgreSQL database
+INFO:backend.database:Database connection test successful - players table found
+INFO:__main__:UDP broadcast socket created for port 7500
+INFO:__main__:UDP receive socket created for port 7501
+INFO:__main__:UDP receiver thread started
+INFO:__main__:Starting Laser Tag API server...
+ * Serving Flask app 'server'
+ * Debug mode: on
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.2.15:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:backend.database:Successfully connected to PostgreSQL database
+INFO:backend.database:Database connection test successful - players table found
+INFO:__main__:UDP broadcast socket created for port 7500
+ERROR:__main__:UDP setup failed: [Errno 98] Address already in use
+ERROR:__main__:Failed to set up UDP sockets.
