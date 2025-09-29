@@ -271,6 +271,7 @@ def equipment_id_generator(team_name: str, index: int = 0) -> int:
 def transform_players_for_ui(players_data: Dict) -> Dict:
     """
     Transform players data from backend format to UI format with red/green teams.
+    Includes both player names and IDs.
     
     Args:
         players_data: Backend players data
@@ -278,8 +279,8 @@ def transform_players_for_ui(players_data: Dict) -> Dict:
     Returns:
         Dict: UI-formatted player data with red and green teams
     """
-    red_team_players = []
-    green_team_players = []
+    red_team_data = {"players": [], "player_ids": []}
+    green_team_data = {"players": [], "player_ids": []}
     
     if "players" in players_data:
         for player in players_data["players"]:
@@ -288,11 +289,13 @@ def transform_players_for_ui(players_data: Dict) -> Dict:
             
             # Even IDs for Red team, Odd IDs for Green team
             if player_id % 2 == 0:
-                red_team_players.append(codename)
+                red_team_data["players"].append(codename)
+                red_team_data["player_ids"].append(player_id)
             else:
-                green_team_players.append(codename)
+                green_team_data["players"].append(codename)
+                green_team_data["player_ids"].append(player_id)
     
     return {
-        "red_team": {"players": red_team_players},
-        "green_team": {"players": green_team_players}
+        "red_team": red_team_data,
+        "green_team": green_team_data
     }
