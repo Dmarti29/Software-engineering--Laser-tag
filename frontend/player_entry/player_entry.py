@@ -110,13 +110,12 @@ class PlayerEntry:
             id_entry.insert(0, str(default_id))
     
     def add_player(self, index):
-        """Add a player to the backend"""
-        codename = self.player_slots[index].get().strip()
-        
-        if not codename:
-            messagebox.showerror("Error", "Please enter a player name")
-            return
-        
+        """Add a player to the backend.
+
+        New logic: read the player ID first, try to retrieve the codename from the backend.
+        - If a codename exists for that ID, populate the name field and notify the user (do not create).
+        - If the player does not exist, require the user to enter a codename and then add the player.
+        """
         # Get custom player ID from entry field
         try:
             player_id_text = self.player_id_entries[index].get().strip()
@@ -128,13 +127,35 @@ class PlayerEntry:
         except ValueError:
             messagebox.showerror("Error", "Player ID must be a number")
             return
-        
+
+        # First, try to fetch existing player by ID from backend
+        fetch_result = self.api_client.get_player(player_id)
+        if "error" not in fetch_result and "codename" in fetch_result:
+            # Player exists in DB: populate the UI and inform the user
+            existing_codename = fetch_result.get("codename", "")
+            self.set_player_name(index, existing_codename)
+            messagebox.showinfo("Player Exists", f"Player ID {player_id} already exists as '{existing_codename}'.")
+            return
+        else:
+            # If the error explicitly says player not found, allow creating a new player
+            err = fetch_result.get("error", "")
+            if err and "not found" not in err.lower() and err != "":
+                # Some other error occurred when fetching
+                messagebox.showerror("Error", f"Failed to fetch player: {err}")
+                return
+
+        # If we reach here, the player was not found (or backend indicated not found)
+        codename = self.player_slots[index].get().strip()
+        if not codename:
+            messagebox.showerror("Error", "Player not found in database. Please enter a player name to add a new player.")
+            return
+
         # Generate equipment ID based on team
         equipment_id = equipment_id_generator(self.team_name, index)
-        
-        # Send to backend
+
+        # Send to backend to create new player
         result = self.api_client.add_player(player_id, codename, equipment_id)
-        
+
         if "error" in result:
             messagebox.showerror("Error", f"Failed to add player: {result['error']}")
         else:

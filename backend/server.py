@@ -282,6 +282,10 @@ def health_check():
 
 #runs server
 def start_server():
+    # Verify database connectivity directly; avoid executing external scripts which
+    # may require sudo or prompt for passwords when running the server.
+    logger.info("Verifying database connectivity...")
+
     if not db.test_connection():
         logger.error("Failed to connect to database.")
         return False
