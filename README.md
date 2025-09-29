@@ -11,95 +11,24 @@
 | bsaenz          | Brian Saenz     |
 
 
-## Quick start for a fresh virtual machine (explicit steps)
+## Quick Start Guide
+This guide assumes you're using a pre-provisioned virtual machine that already has Python and the PostgreSQL database set up.
 
-The project expects the PostgreSQL database and role to be provisioned by the administrator or during VM provisioning. The `setup_db.sh` in this repo is verify-only and will not create users/databases. Follow these exact steps when you log onto a clean Ubuntu/Debian VM.
+### Running the Application
 
-1) Update the package list and install required system packages
-
-```bash
-sudo apt-get update
-sudo apt-get install -y git python3 python3-venv python3-pip python3-tk postgresql postgresql-contrib
-```
-
-2) Create the PostgreSQL role and database (run as the postgres superuser)
-
-Run these commands to provision the database and role that the app expects. If your environment already has a `student` user and `photon` database, skip this step.
-
-```bash
-sudo -u postgres psql -c "CREATE USER student WITH PASSWORD 'student';"
-sudo -u postgres psql -c "CREATE DATABASE photon OWNER student;"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE photon TO student;"
-```
-
-3) Verify PostgreSQL is running and reachable
-
-```bash
-sudo systemctl start postgresql
-PGPASSWORD=student psql -U student -d photon -h localhost -c "SELECT current_database(), current_user();"
-```
-
-4) Clone repository, create and activate a Python virtualenv
-
-```bash
-git clone https://github.com/Dmarti29/Software-engineering--Laser-tag.git
-cd Software-engineering--Laser-tag
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-5) (Optional) Make helper scripts executable
-
-The repo contains `install.sh` and `setup_db.sh`. `setup_db.sh` currently only verifies connectivity (does not create DB/users). If you want to run them manually:
-
-```bash
-chmod +x install.sh setup_db.sh
-```
-
-6) Start the backend server
-
-Run the backend as a module from the repository root so Python finds the `backend` package:
-
-```bash
-python3 -m backend.server
-```
-
-If port 5000 is already in use you'll see an error. To find and stop the process using the port:
-
-```bash
-# Find the process using port 5000
-sudo lsof -i :5000
-
-# Kill the process (replace <PID> with the process id from the previous command)
-sudo kill <PID>
-```
-
-7) Start the frontend GUI (in a new terminal with the venv activated)
-
-```bash
-python3 main.py
-```
-
-
-### If this VM is already provisioned (no venv, no DB creation)
-
-If the virtual machine you're logging into already has the required Python environment and the `photon` database/user provisioned by your admin (so you do NOT need to create a venv or run any DB setup), follow these minimal steps from the repository root:
-
-1. Ensure you're in the project directory (skip clone if already present):
+1. Navigate to the project directory:
 
 ```bash
 cd /path/to/Software-engineering--Laser-tag
 ```
 
-2. Run the backend server (no venv required if Python and dependencies are already installed):
+2. Start the backend server:
 
 ```bash
 python3 -m backend.server
 ```
 
-3. In another terminal, start the frontend GUI:
+3. Open a new terminal and start the frontend GUI:
 
 ```bash
 python3 main.py
