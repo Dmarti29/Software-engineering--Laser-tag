@@ -10,30 +10,29 @@
 | dorivas03       | Daniel Rivas    |
 | bsaenz          | Brian Saenz     |
 
-### Get the code
-run this to ensure you have git
-sudo apt update
-sudo apt install -y git
-git --version
+## Installation & Setup
 
+**IMPORTANT: You must run the installation script before running the application!**
 
-Clone the repository (choose one):
+### Prerequisites
+- Ubuntu/Debian-based Linux system
+- sudo access
 
-**HTTPS**
-```bash
-git clone https://github.com/dmarti29/Software-engineering--Laser-tag.git
-cd Software-engineering--Laser-tag
+### Installation Steps
 
-## Quick Start Guide
-This guide assumes you're using a pre-provisioned virtual machine that already has Python and the PostgreSQL database set up.
+1. **Get the code**
+   ```bash
+   sudo apt update
+   sudo apt install -y git
+   git clone https://github.com/dmarti29/Software-engineering--Laser-tag.git
+   cd Software-engineering--Laser-tag
+
+Then install the dependencies with this command
+sudo ./install.sh
 
 ### Running the Application
+navigate to    cd Software-engineering--Laser-tag
 
-1. Navigate to the project directory:
-
-```bash
-cd /path/to/Software-engineering--Laser-tag
-```
 
 2. Start the backend server:
 
