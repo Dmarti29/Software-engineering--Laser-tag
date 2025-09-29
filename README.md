@@ -1,5 +1,14 @@
 # Photon Laser Tag System
 
+| GitHub Username | Real Name       |
+|-----------------|-----------------|
+| dmarti29        | Daniel Martinez |
+| carloszamora0822| Carlos Zamora   |
+| imjustruby      | Ruby Lopez      |
+| dorivas03       | Daniel Rivas    |
+| bsaenz          | Brian Saenz     |
+
+
 ## Complete Installation Guide (Step by Step)
 
 ### Step 1: Clone the Repository
