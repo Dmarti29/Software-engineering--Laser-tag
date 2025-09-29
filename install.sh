@@ -13,7 +13,22 @@ fi
 # Install system dependencies
 echo "Installing system dependencies..."
 apt-get update
-apt-get install -y python3-tk python3-pil python3-pil.imagetk python3-flask python3-psycopg2 python3-flask-cors
+apt-get install -y \
+    python3 \
+    python3-tk \
+    python3-pil \
+    python3-pil.imagetk \
+    python3-flask \
+    python3-psycopg2 \
+    python3-flask-cors \
+    python3-requests \
+    postgresql \
+    postgresql-contrib
+
+# Start PostgreSQL service
+echo "Starting PostgreSQL service..."
+systemctl start postgresql
+systemctl enable postgresql
 
 echo "Creating Python virtual environment..."
 

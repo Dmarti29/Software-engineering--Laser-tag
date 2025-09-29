@@ -5,11 +5,25 @@
 echo "==== Setting up PostgreSQL Database for Photon Laser Tag ===="
 echo ""
 
-# Check if PostgreSQL is installed
-if ! command -v psql &> /dev/null; then
-    echo "PostgreSQL is not installed. Please install PostgreSQL first."
-    echo "On macOS: brew install postgresql"
-    echo "On Ubuntu: sudo apt install postgresql postgresql-contrib"
+# Make sure PostgreSQL is running
+echo "Making sure PostgreSQL is running..."
+sudo systemctl start postgresql || {
+    echo "Failed to start PostgreSQL"
+    exit 1
+}
+
+# Wait for PostgreSQL to be ready
+echo "Waiting for PostgreSQL to be ready..."
+for i in {1..30}; do
+    if pg_isready &>/dev/null; then
+        break
+    fi
+    echo "Waiting... ($i/30)"
+    sleep 1
+done
+
+if ! pg_isready &>/dev/null; then
+    echo "PostgreSQL failed to start"
     exit 1
 fi
 

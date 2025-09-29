@@ -1,8 +1,67 @@
 # Photon Laser Tag System
 
-## Project Overview
+## Complete Installation Guide (Step by Step)
 
-This project implements a laser tag management system with player entry, game control, and team management features. The system is designed for a laser tag arena where players can register, join teams, and participate in matches.
+### Step 1: Clone the Repository
+```bash
+# Install git if you don't have it
+sudo apt-get update
+sudo apt-get install -y git
+
+# Clone the repository
+git clone https://github.com/Dmarti29/Software-engineering--Laser-tag.git
+cd Software-engineering--Laser-tag
+```
+
+### Step 2: Run Installation Script
+```bash
+# Make the install script executable
+chmod +x install.sh
+
+# Run the install script (this will install all required packages)
+sudo ./install.sh
+```
+
+### Step 3: Set Up Database
+```bash
+# Make the database setup script executable
+chmod +x setup_db.sh
+
+# Run the database setup
+./setup_db.sh
+```
+
+### Step 4: Run the Application
+You need two terminal windows open:
+
+Terminal 1 (Backend Server):
+```bash
+PYTHONPATH=/home/student/Software-engineering--Laser-tag python3 backend/server.py
+```
+
+Terminal 2 (Frontend GUI):
+```bash
+PYTHONPATH=/home/student/Software-engineering--Laser-tag python3 main.py
+```
+
+### Troubleshooting
+
+1. If you see "Address already in use" error:
+   - Just ignore it, the server will still work
+
+2. If you see database connection errors:
+   - Make sure PostgreSQL is running:
+   ```bash
+   sudo systemctl start postgresql
+   ```
+
+3. If you see "No module found" errors:
+   - Make sure you ran the install script with sudo
+   - Make sure you're using PYTHONPATH as shown above
+
+4. If the GUI doesn't show:
+   - Make sure you installed python3-tk (the install script should have done this)
+   - Try running: `sudo apt-get install python3-tk`
 
 ## Features
 
