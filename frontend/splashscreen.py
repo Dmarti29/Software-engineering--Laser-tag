@@ -7,7 +7,7 @@ def splash_screen(window, next_screen):
     frame.pack(expand=True, fill="both")
 
     #load photon logo
-    photon_image = Image.open("assets/logo.jpg")
+    photon_image = Image.open("frontend/assets/logo.jpg")
     photon_image = photon_image.resize((1300, 800))
     photo = ImageTk.PhotoImage(photon_image)
 

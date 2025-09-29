@@ -1,6 +1,6 @@
 import tkinter as tk
-from splashscreen import splash_screen
-from player_entry.player_entry_component import PlayerEntryComponent
+from frontend.splashscreen import splash_screen
+from frontend.player_entry.player_entry_component import PlayerEntryComponent
 
 def show_player_entry_screen(window):
     player_entry_screen = PlayerEntryComponent(window)

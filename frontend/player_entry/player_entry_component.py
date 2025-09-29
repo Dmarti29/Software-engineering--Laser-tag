@@ -1,8 +1,8 @@
 import tkinter as tk
-from player_entry.player_teams.red_team_entry import RedTeamEntry
-from player_entry.player_teams.green_team_entry import GreenTeamEntry
-from player_entry.game_status.start_game import StartGameButton
-from player_entry.game_status.end_game import EndGameButton
+from frontend.player_entry.player_teams.red_team_entry import RedTeamEntry
+from frontend.player_entry.player_teams.green_team_entry import GreenTeamEntry
+from frontend.player_entry.game_status.start_game import StartGameButton
+from frontend.player_entry.game_status.end_game import EndGameButton
 
 class PlayerEntryComponent(tk.Frame):
     """

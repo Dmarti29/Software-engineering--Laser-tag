@@ -1,5 +1,5 @@
 import tkinter as tk
-from player_entry.player_entry import PlayerEntry
+from frontend.player_entry.player_entry import PlayerEntry
 
 class RedTeamEntry(PlayerEntry):
     """
