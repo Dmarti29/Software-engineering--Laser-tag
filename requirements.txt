@@ -1,8 +1,8 @@
-# Backend Dependencies
-psycopg2-binary==2.9.7
+# Backend dependencies
+psycopg2-binary>=2.9.9
 flask==2.3.3
 flask-cors==4.0.0
 
-# Frontend Dependencies
-pillow==10.0.0
-requests==2.31.0
+# Frontend dependencies
+pillow==10.0.0  # For image processing in splash screen
+requests==2.31.0  # For API communication
