@@ -41,23 +41,16 @@ cd /path/to/Software-engineering--Laser-tag
 python3 -m backend.server
 ```
 
-3. Open a new terminal and start the frontend GUI:
+3. Open a new terminal and cd back into the same directory Software-engineering-Laser-tag
 
 ```bash
 python3 main.py
 ```
 
-Notes:
-- `setup_db.sh` in this repo is verify-only and will not create the database/user. It can be used to check connectivity but is optional on a provisioned VM.
-- If the backend is running on a different host than the frontend, update `base_url` in `frontend/api/client.py` to point to the backend host (e.g., `http://VM_IP:5000`).
-- If you see port conflicts on 5000, either stop the conflicting process or change the Flask port (I can add an env var/CLI flag if you want).
 
 
 ## Notes & troubleshooting
 
-- The repo intentionally avoids creating DB users/databases automatically. Use the explicit `psql` commands above when provisioning a new VM.
-- If you see `ModuleNotFoundError: No module named 'backend'`, ensure you run the server with `python3 -m backend.server` from the project root or set `PYTHONPATH` to the repo root.
-- If the backend cannot reach PostgreSQL, ensure the PostgreSQL service is running:
 
 ```bash
 sudo systemctl start postgresql
