@@ -10,6 +10,19 @@
 | dorivas03       | Daniel Rivas    |
 | bsaenz          | Brian Saenz     |
 
+### Get the code
+run this to ensure you have git
+sudo apt update
+sudo apt install -y git
+git --version
+
+
+Clone the repository (choose one):
+
+**HTTPS**
+```bash
+git clone https://github.com/dmarti29/Software-engineering--Laser-tag.git
+cd Software-engineering--Laser-tag
 
 ## Quick Start Guide
 This guide assumes you're using a pre-provisioned virtual machine that already has Python and the PostgreSQL database set up.
