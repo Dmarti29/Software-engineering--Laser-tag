@@ -49,22 +49,6 @@ echo "Installing dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Ask if user wants to set up the database
-echo ""
-echo "Do you want to set up the PostgreSQL database now? (y/n)"
-read -r setup_db
-
-if [ "$setup_db" = "y" ] || [ "$setup_db" = "Y" ]; then
-    # Check if setup_db.sh exists and is executable
-    if [ -f "./setup_db.sh" ] && [ -x "./setup_db.sh" ]; then
-        echo "Setting up PostgreSQL database..."
-        ./setup_db.sh
-    else
-        echo "setup_db.sh not found or not executable."
-        echo "Please make sure setup_db.sh exists and is executable with: chmod +x setup_db.sh"
-    fi
-fi
-
 echo ""
 echo "==== Installation Complete ====" 
 echo ""
