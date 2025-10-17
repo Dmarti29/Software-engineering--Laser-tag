@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 from frontend.api import ApiClient, team_id_generator, equipment_id_generator
 
 class PlayerEntry:
@@ -119,6 +119,7 @@ class PlayerEntry:
         New logic: read the player ID first, try to retrieve the codename from the backend.
         - If a codename exists for that ID, populate the name field and notify the user (do not create).
         - If the player does not exist, require the user to enter a codename and then add the player.
+        - After adding, prompt for Hardware ID for UDP broadcasting.
         """
         # Get player ID from entry field (required)
         try:
@@ -138,6 +139,20 @@ class PlayerEntry:
             existing_codename = fetch_result.get("codename", "")
             self.set_player_name(index, existing_codename)
             messagebox.showinfo("Player Exists", f"Player ID {player_id} already exists as '{existing_codename}'.")
+            
+            # Prompt for Hardware ID for existing player
+            hardware_id = simpledialog.askinteger(
+                "Hardware ID",
+                f"Enter Hardware ID for {existing_codename}:",
+                parent=self.frame,
+                minvalue=1
+            )
+            
+            if hardware_id:
+                # Broadcast the hardware ID via UDP
+                result = self.api_client.add_player(player_id, existing_codename, hardware_id)
+                if "error" not in result:
+                    messagebox.showinfo("Success", f"Hardware ID {hardware_id} assigned and broadcasted for {existing_codename}")
             return
         else:
             # If the error explicitly says player not found, allow creating a new player
@@ -153,16 +168,25 @@ class PlayerEntry:
             messagebox.showerror("Error", "Player not found in database. Please enter a player name to add a new player.")
             return
 
-        # Generate equipment ID based on team
-        equipment_id = equipment_id_generator(self.team_name, index)
+        # Prompt for Hardware ID instead of auto-generating
+        hardware_id = simpledialog.askinteger(
+            "Hardware ID",
+            f"Enter Hardware ID for {codename}:",
+            parent=self.frame,
+            minvalue=1
+        )
+        
+        if not hardware_id:
+            messagebox.showerror("Error", "Hardware ID is required to add a player.")
+            return
 
-        # Send to backend to create new player
-        result = self.api_client.add_player(player_id, codename, equipment_id)
+        # Send to backend to create new player with user-provided hardware ID
+        result = self.api_client.add_player(player_id, codename, hardware_id)
 
         if "error" in result:
             messagebox.showerror("Error", f"Failed to add player: {result['error']}")
         else:
-            messagebox.showinfo("Success", f"{codename} added to {self.team_name} team with ID {player_id}")
+            messagebox.showinfo("Success", f"{codename} added to {self.team_name} team with ID {player_id} and Hardware ID {hardware_id}")
     
     def get_player_ids(self):
         """Returns a list of all player IDs"""
