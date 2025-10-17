@@ -37,9 +37,6 @@ class PlayerEntryComponent(tk.Frame):
         self.status_label = tk.Label(self.status_frame, text="Status: Connecting to server...")
         self.status_label.pack(side="left")
         
-        self.refresh_button = tk.Button(self.status_frame, text="Refresh Players", command=self.refresh_players)
-        self.refresh_button.pack(side="right")
-        
         self.clear_all_button = tk.Button(self.status_frame, text="Clear All Players", command=self.clear_all_players_backend)
         self.clear_all_button.pack(side="right", padx=10)
         
@@ -77,9 +74,6 @@ class PlayerEntryComponent(tk.Frame):
         # Start the health check thread
         self.health_thread = threading.Thread(target=self.health_check_loop, daemon=True)
         self.health_thread.start()
-        
-        # Fetch initial data
-        self.refresh_players()
     
     def start_game(self):
         """Start the game via backend API"""
