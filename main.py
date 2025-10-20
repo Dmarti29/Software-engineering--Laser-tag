@@ -2,7 +2,7 @@ import tkinter as tk
 from frontend.splashscreen import splash_screen
 from frontend.player_entry.player_entry_component import PlayerEntryComponent
 from frontend.play_action_screen import PlayActionScreen
-
+from frontend.countdowntimer import CountdownTimer
 # start up the player entry screen
 def show_player_entry_screen(window):
     player_entry_screen = PlayerEntryComponent(window)
@@ -30,6 +30,8 @@ def main():
     window = tk.Tk()
     window.title("Photon - Player Entry")
     window.geometry("1300x800")
+
+    splash_images = [f"frontend/assets/{i}.tif" for i in range(31)]
 
     splash_screen(window, show_player_entry_screen)
 
