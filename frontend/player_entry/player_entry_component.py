@@ -65,8 +65,8 @@ class PlayerEntryComponent(tk.Frame):
         button_frame.grid(row=3, column=0, columnspan=2, pady=10)
 
         # Inject Start/Stop Game buttons
-        start_button = StartGameButton(button_frame, command=self.start_game)
-        start_button.pack(side="left", padx=20)
+        self.start_button = StartGameButton(button_frame, command=self.start_game)
+        self.start_button.pack(side="left", padx=20)
 
         stop_button = EndGameButton(button_frame, command=self.stop_game)
         stop_button.pack(side="left", padx=20)
