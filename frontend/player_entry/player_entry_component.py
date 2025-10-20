@@ -65,7 +65,7 @@ class PlayerEntryComponent(tk.Frame):
         button_frame.grid(row=3, column=0, columnspan=2, pady=10)
 
         # Inject Start/Stop Game buttons
-        self.start_button = StartGameButton(button_frame, command=self.start_game)
+        self.start_button = StartGameButton(button_frame)
         self.start_button.pack(side="left", padx=20)
 
         stop_button = EndGameButton(button_frame, command=self.stop_game)
@@ -78,10 +78,10 @@ class PlayerEntryComponent(tk.Frame):
     def start_game(self):
         """Start the game via backend API"""
         result = self.api_client.start_game()
-        if "error" in result:
-            messagebox.showerror("Error", f"Failed to start game: {result['error']}")
-        else:
-            messagebox.showinfo("Success", "Game started successfully")
+        #if "error" in result:
+        #    messagebox.showerror("Error", f"Failed to start game: {result['error']}")
+        #else:
+        #    messagebox.showinfo("Success", "Game started successfully")
     
     def stop_game(self):
         """Stop the game via backend API"""

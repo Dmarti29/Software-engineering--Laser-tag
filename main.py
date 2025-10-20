@@ -11,13 +11,13 @@ def show_player_entry_screen(window):
 
     play_action = PlayActionScreen(window)
 
-    def show_play_action_screen():
+    def start_play_action_screen():
+        player_entry_screen.start_game()
+
         player_entry_screen.pack_forget()
         play_action.pack(expand=True, fill="both")
 
-    player_entry_screen.start_game_button.config(command=show_play_action_screen)
-
-
+    player_entry_screen.start_button.config(command=start_play_action_screen)
 
 def main():
     window = tk.Tk()
