@@ -19,10 +19,17 @@ def show_player_entry_screen(window):
         red_team_players = player_entry_screen.get_red_team_data()["players"]
         green_team_players = player_entry_screen.get_green_team_data()["players"]
 
-        play_action = PlayActionScreen(window, red_team_players, green_team_players)
-
+        # hide player entry screen
         player_entry_screen.pack_forget()
-        play_action.pack(expand=True, fill="both")
+
+        # show countdown timer with images 1-30
+        countdown_images = [f"frontend/assets/{i}.tif" for i in range(1, 31)]
+        
+        def show_play_action_after_countdown(window):
+            play_action = PlayActionScreen(window, red_team_players, green_team_players)
+            play_action.pack(expand=True, fill="both")
+        
+        CountdownTimer(window, countdown_images, duration=1, next_screen=show_play_action_after_countdown)
 
     # bind start game click
     player_entry_screen.start_button.config(command=start_play_action_screen)
