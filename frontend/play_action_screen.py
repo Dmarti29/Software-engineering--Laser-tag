@@ -39,6 +39,8 @@ class PlayActionScreen(tk.Frame):
 
         tk.Label(red_frame, text = "RED TEAM", font = ("Arial", 20, "bold"), fg = "red", bg = "#1a1a1a").pack()
         for name in self.players_red:
+            if not name.strip():
+                continue
             row = tk.Frame(red_frame, bg = "#1a1a1a")
             row.pack(fill = "x", pady = 5)
             tk.Label(row, text = name, font = ("Arial", 16), fg = "white", bg = "#1a1a1a", anchor = "e").pack(side = "left", padx = 10)
@@ -50,6 +52,8 @@ class PlayActionScreen(tk.Frame):
 
         tk.Label(green_frame, text = "GREEN TEAM", font = ("Arial", 20, "bold"), fg = "lime", bg = "#1a1a1a").pack()
         for name in self.players_green:
+            if not name.strip():
+                continue
             row = tk.Frame(green_frame, bg = "#1a1a1a")
             row.pack(fill = "x", pady = 5)
             tk.Label(row, text = name, font = ("Arial", 16), fg = "white", bg = "#1a1a1a", anchor = "w").pack(side = "left", padx = 10)
@@ -88,21 +92,3 @@ class PlayActionScreen(tk.Frame):
             wrap = "word"
         )
         self.action_text.pack(side = "left", expand = True, fill = "both")
-
-
-#################################################
-# TESTING SCREEN: REMOVE ONCE DONE #
-#if __name__ == "__main__":
-#    root = tk.Tk()
-#    root.title("Play Action Screen Demo")
-#    root.geometry("1300x800")
-
-    # Simulate data coming from player entry screen
-    # players_red = ["Player 1", "Player 2", "Player 3"]
-    # players_green = ["Player 4", "Player 5", "Player 6"]
-
-#    play_screen = PlayActionScreen(root, players_red, players_green)
-#    play_screen.pack(expand = True, fill = "both")
-
-#    root.mainloop()
-#################################################
