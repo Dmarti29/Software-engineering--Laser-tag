@@ -9,10 +9,13 @@ def show_player_entry_screen(window):
 
     player_entry_screen.update_idletasks()
 
-    play_action = PlayActionScreen(window)
-
     def start_play_action_screen():
         player_entry_screen.start_game()
+
+        red_team_players = player_entry_screen.get_red_team_data()["players"]
+        green_team_players = player_entry_screen.get_green_team_data()["players"]
+
+        play_action = PlayActionScreen(window, red_team_players, green_team_players)
 
         player_entry_screen.pack_forget()
         play_action.pack(expand=True, fill="both")
