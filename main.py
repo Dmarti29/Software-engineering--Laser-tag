@@ -1,3 +1,4 @@
+import sys
 import tkinter as tk
 from frontend.splashscreen import splash_screen
 from frontend.player_entry.player_entry_component import PlayerEntryComponent
@@ -31,6 +32,12 @@ def main():
     window.title("Photon - Player Entry")
     window.geometry("1300x800")
 
+    time_duration = 30 # default for pressing start game
+    if len(sys.argv) > 1:
+        try:
+            time_duration = float(sys.argv[1])
+        except ValueError:
+            print("Invalid duration argument. Using default 2 seconds.")
     splash_images = [f"frontend/assets/{i}.tif" for i in range(31)]
 
     splash_screen(window, show_player_entry_screen)
