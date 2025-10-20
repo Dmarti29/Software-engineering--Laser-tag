@@ -92,17 +92,17 @@ class PlayActionScreen(tk.Frame):
 
 #################################################
 # TESTING SCREEN: REMOVE ONCE DONE #
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Play Action Screen Demo")
-    root.geometry("1300x800")
+#if __name__ == "__main__":
+#    root = tk.Tk()
+#    root.title("Play Action Screen Demo")
+#    root.geometry("1300x800")
 
     # Simulate data coming from player entry screen
     # players_red = ["Player 1", "Player 2", "Player 3"]
     # players_green = ["Player 4", "Player 5", "Player 6"]
 
-    play_screen = PlayActionScreen(root, players_red, players_green)
-    play_screen.pack(expand = True, fill = "both")
+#    play_screen = PlayActionScreen(root, players_red, players_green)
+#    play_screen.pack(expand = True, fill = "both")
 
-    root.mainloop()
+#    root.mainloop()
 #################################################
