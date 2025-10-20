@@ -10,7 +10,7 @@
 | dorivas03       | Daniel Rivas    |
 | bsaenz          | Brian Saenz     |
 
-## Installation & Setup
+## Setup and steps to run on Virtual Machine. Installation steps.
 
 **IMPORTANT: You must run the installation script before running the application!**
 
