@@ -41,22 +41,21 @@ python3 -m backend.server
 ```
 
 3. Open a new terminal and cd back into the same directory Software-engineering-Laser-tag
+   cd Software-engineering--Laser-tag
+
+Then run
 
 ```bash
 python3 main.py
 ```
 
+So at this point you should have 2 different terminals open and they should be running both programs
 
 
 ## Notes & troubleshooting
 
 
-```bash
-sudo systemctl start postgresql
-sudo systemctl status postgresql
-```
 
-- If you want to run the frontend from another machine, change the backend base URL in `frontend/api/client.py` (`base_url`) to point to the VM's IP address and open firewall rules accordingly.
 
 
 ## Features
