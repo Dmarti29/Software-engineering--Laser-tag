@@ -22,8 +22,8 @@ def show_player_entry_screen(window):
         # hide player entry screen
         player_entry_screen.pack_forget()
 
-        # show countdown timer with images 1-30
-        countdown_images = [f"frontend/assets/{i}.tif" for i in range(1, 31)]
+        # show countdown timer with images 30-1
+        countdown_images = [f"frontend/assets/{i}.tif" for i in range(30, 0, -1)]
         
         def show_play_action_after_countdown(window):
             play_action = PlayActionScreen(window, red_team_players, green_team_players)
