@@ -36,18 +36,17 @@ navigate to    cd Software-engineering--Laser-tag
 
 2. Start the backend server:
 
-```bash
 python3 -m backend.server
-```
+
 
 3. Open a new terminal and cd back into the same directory Software-engineering-Laser-tag
    cd Software-engineering--Laser-tag
 
 Then run
 
-```bash
+
 python3 main.py
-```
+
 
 So at this point you should have 2 different terminals open and they should be running both programs
 
