@@ -23,7 +23,7 @@ class PlayActionScreen(tk.Frame):
         self.build_bottom_half()
         
         # Start the countdown
-        self.update_timer()
+        self.pregame_countdown()
 
     # CURRENT SCORES (TOP HALF) #
     def build_top_half(self):
@@ -100,7 +100,25 @@ class PlayActionScreen(tk.Frame):
         )
         self.action_text.pack(side = "left", expand = True, fill = "both")
     
-    def update_timer(self):
+    def pregame_countdown(self):
+        self.pre_time_remaining = 30 # 30 seconds
+        self.update_pregame_timer()
+
+    def update_pregame_timer(self):
+        if self.pre_time_remaining <= 0:
+            self.timer_label.config(text="Time Remaining: 06:00")
+            self.time_remaining = 6 * 60
+            self.update_game_timer()
+            return
+        
+        minutes = self.pre_time_remaining // 60
+        seconds = self.pre_time_remaining % 60
+        self.timer_label.config(text=f"Game starts in: {minutes:02d}:{seconds:02d}")
+
+        self.pre_time_remaining -= 1
+        self.after(1000, self.update_pregame_timer)
+
+    def update_game_timer(self):
         """Update the countdown timer every second"""
         if self.time_remaining <= 0:
             self.timer_label.config(text="Time Remaining: 00:00")
@@ -113,4 +131,4 @@ class PlayActionScreen(tk.Frame):
         self.timer_label.config(text=time_update)
 
         self.time_remaining -= 1
-        self.after(1000, self.update_timer)
+        self.after(1000, self.update_game_timer)
