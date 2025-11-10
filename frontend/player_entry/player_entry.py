@@ -149,8 +149,8 @@ class PlayerEntry:
             )
             
             if hardware_id:
-                # Broadcast the hardware ID via UDP
-                result = self.api_client.add_player(player_id, existing_codename, hardware_id)
+                # Broadcast the hardware ID via UDP with team assignment
+                result = self.api_client.add_player(player_id, existing_codename, hardware_id, team=self.team_name.lower())
                 if "error" not in result:
                     messagebox.showinfo("Success", f"Hardware ID {hardware_id} assigned and broadcasted for {existing_codename}")
             return
@@ -180,8 +180,8 @@ class PlayerEntry:
             messagebox.showerror("Error", "Hardware ID is required to add a player.")
             return
 
-        # Send to backend to create new player with user-provided hardware ID
-        result = self.api_client.add_player(player_id, codename, hardware_id)
+        # Send to backend to create new player with user-provided hardware ID and team
+        result = self.api_client.add_player(player_id, codename, hardware_id, team=self.team_name.lower())
 
         if "error" in result:
             messagebox.showerror("Error", f"Failed to add player: {result['error']}")

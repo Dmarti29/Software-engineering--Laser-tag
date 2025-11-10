@@ -3,6 +3,7 @@ from flask_cors import CORS
 import logging
 from backend.database import LaserTagDatabase
 from backend.config import DATABASE_CONFIG
+from backend.game_state import GameState
 import threading
 import socket
 import time
@@ -14,6 +15,7 @@ app = Flask(__name__)
 CORS(app)
 
 db = LaserTagDatabase(**DATABASE_CONFIG)
+game_state = GameState()
 
 udp_broadcast_socket = None
 udp_receive_socket = None
@@ -79,18 +81,73 @@ def udp_receiver_thread():
 def process_received_udp_data(message):
     try:
         if ':' in message:
+            # Format: transmitting_id:hit_id or transmitting_id:base_code
             transmitting_id, hit_id = message.split(':')
-            logger.info(f"Player {transmitting_id} hit player {hit_id}")
-            broadcast_equipment_id(int(hit_id))
+            transmitting_id = int(transmitting_id)
+            hit_id = int(hit_id)
+            
+            logger.info(f"Player {transmitting_id} hit target {hit_id}")
+            
+            # Check for base scoring
+            if hit_id == 53:
+                # Red base hit - check if attacker is on green team
+                attacker = game_state.get_player(transmitting_id)
+                if attacker and attacker['team'] == 'green':
+                    logger.info(f"GREEN team player {transmitting_id} hit RED base! +100 points")
+                    game_state.update_score(transmitting_id, 100)
+                    game_state.mark_base_hit(transmitting_id)
+                    broadcast_equipment_id(hit_id)
+                else:
+                    logger.warning(f"RED team player {transmitting_id} hit own base - no points awarded")
+                    
+            elif hit_id == 43:
+                # Green base hit - check if attacker is on red team
+                attacker = game_state.get_player(transmitting_id)
+                if attacker and attacker['team'] == 'red':
+                    logger.info(f"RED team player {transmitting_id} hit GREEN base! +100 points")
+                    game_state.update_score(transmitting_id, 100)
+                    game_state.mark_base_hit(transmitting_id)
+                    broadcast_equipment_id(hit_id)
+                else:
+                    logger.warning(f"GREEN team player {transmitting_id} hit own base - no points awarded")
+                    
+            else:
+                # Regular player hit
+                # Check for friendly fire
+                if game_state.is_friendly_fire(transmitting_id, hit_id):
+                    logger.warning(f"FRIENDLY FIRE: Player {transmitting_id} hit teammate {hit_id}")
+                    
+                    # Broadcast both equipment IDs (requirement for friendly fire)
+                    broadcast_equipment_id(transmitting_id)
+                    time.sleep(0.05)  # Small delay between broadcasts
+                    broadcast_equipment_id(hit_id)
+                    
+                    # Apply -10 points to both players
+                    game_state.update_score(transmitting_id, -10)
+                    game_state.update_score(hit_id, -10)
+                    
+                else:
+                    # Normal hit: +10 points to attacker
+                    logger.info(f"Valid hit: Player {transmitting_id} hit enemy {hit_id}")
+                    broadcast_equipment_id(hit_id)
+                    game_state.update_score(transmitting_id, 10)
             
         elif message.isdigit():
             equipment_id = int(message)
             logger.info(f"Received single equipment ID: {equipment_id}")
             
+            # Base scoring codes
             if equipment_id == 53:
-                logger.info("Red base scored!")
+                # Red base was hit - award points to the last green team player who transmitted
+                logger.info("Red base (code 53) hit!")
+                # Note: Without context of who hit it, we can't award points here
+                # This would typically come in format equipment_id:53
+                
             elif equipment_id == 43:
-                logger.info("Green base scored!")
+                # Green base was hit - award points to the last red team player who transmitted
+                logger.info("Green base (code 43) hit!")
+                # Note: Without context of who hit it, we can't award points here
+                # This would typically come in format equipment_id:43
                 
     except Exception as e:
         logger.error(f"Failed to process UDP data '{message}': {e}")
@@ -126,6 +183,7 @@ def add_player():
         player_id = data.get('id')
         codename = data.get('codename')
         equipment_id = data.get('equipment_id')
+        team = data.get('team', 'red')  # Default to red if not specified
         
         if player_id is None:
             return jsonify({'error': 'Player ID is required'}), 400
@@ -136,27 +194,28 @@ def add_player():
         existing_codename = db.get_player_by_id(player_id)
         
         if existing_codename and not codename:
-            return jsonify({
-                'id': player_id,
-                'codename': existing_codename,
-                'message': 'Player already exists'
-            }), 200
+            codename = existing_codename
             
         if not codename:
             return jsonify({'error': 'Codename is required for new players'}), 400
             
-        if db.add_player(player_id, codename):
-            if equipment_id:
-                broadcast_equipment_id(equipment_id)
-                
-            return jsonify({
-                'id': player_id,
-                'codename': codename,
-                'equipment_id': equipment_id,
-                'message': 'Player added successfully'
-            }), 201
-        else:
-            return jsonify({'error': 'Failed to add player to database'}), 500
+        # Add to database if new
+        if not existing_codename:
+            if not db.add_player(player_id, codename):
+                return jsonify({'error': 'Failed to add player to database'}), 500
+        
+        # Add to game state with equipment ID and team
+        if equipment_id:
+            game_state.add_player(equipment_id, player_id, codename, team)
+            broadcast_equipment_id(equipment_id)
+            
+        return jsonify({
+            'id': player_id,
+            'codename': codename,
+            'equipment_id': equipment_id,
+            'team': team,
+            'message': 'Player added successfully'
+        }), 201
             
     except Exception as e:
         logger.error(f"Error adding player: {e}")
@@ -181,11 +240,11 @@ def get_player(player_id):
         return jsonify({'error': 'Internal server error'}), 500
 
 #clears all players from the database
-
 @app.route('/players', methods=['DELETE'])
 def clear_all_players():
     try:
         if db.clear_all_players():
+            game_state.clear_all_players()
             return jsonify({'message': 'All players cleared successfully'}), 200
         else:
             return jsonify({'error': 'Failed to clear players'}), 500
@@ -247,6 +306,7 @@ def broadcast_id(equipment_id):
 @app.route('/game/start', methods=['POST'])
 def start_game():
     try:
+        game_state.start_game()
         if broadcast_equipment_id(202):  # Game start code
             return jsonify({'message': 'Game started - code 202 broadcasted'}), 200
         else:
@@ -259,6 +319,7 @@ def start_game():
 @app.route('/game/end', methods=['POST'])
 def end_game():
     try:
+        game_state.end_game()
         # Broadcast code 221 three times as required
         for i in range(3):
             if not broadcast_equipment_id(221):
@@ -268,6 +329,60 @@ def end_game():
         return jsonify({'message': 'Game ended - code 221 broadcasted 3 times'}), 200
     except Exception as e:
         logger.error(f"Error ending game: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+#get game state (scores, players, etc.)
+@app.route('/game/state', methods=['GET'])
+def get_game_state():
+    try:
+        all_players = game_state.get_all_players()
+        
+        # Organize by team
+        red_team = []
+        green_team = []
+        
+        for equipment_id, player_info in all_players.items():
+            player_data = {
+                'equipment_id': equipment_id,
+                'player_id': player_info['player_id'],
+                'codename': player_info['codename'],
+                'score': player_info['score'],
+                'hit_base': player_info['hit_base']
+            }
+            
+            if player_info['team'] == 'red':
+                red_team.append(player_data)
+            else:
+                green_team.append(player_data)
+        
+        # Sort by score (highest first)
+        red_team.sort(key=lambda x: x['score'], reverse=True)
+        green_team.sort(key=lambda x: x['score'], reverse=True)
+        
+        return jsonify({
+            'is_active': game_state.is_game_active,
+            'red_team': {
+                'players': red_team,
+                'total_score': game_state.get_team_score('red')
+            },
+            'green_team': {
+                'players': green_team,
+                'total_score': game_state.get_team_score('green')
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error getting game state: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+#reset game state
+@app.route('/game/reset', methods=['POST'])
+def reset_game():
+    try:
+        game_state.reset_game()
+        return jsonify({'message': 'Game state reset successfully'}), 200
+    except Exception as e:
+        logger.error(f"Error resetting game: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 #health checks

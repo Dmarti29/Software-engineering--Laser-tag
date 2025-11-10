@@ -75,7 +75,7 @@ class ApiClient:
             logger.error(f"Failed to get players: {e}")
             return {"error": str(e), "players": [], "count": 0}
     
-    def add_player(self, player_id: int, codename: str, equipment_id: Optional[int] = None) -> Dict:
+    def add_player(self, player_id: int, codename: str, equipment_id: Optional[int] = None, team: str = "red") -> Dict:
         """
         Add a new player to the backend.
         
@@ -83,13 +83,15 @@ class ApiClient:
             player_id (int): ID of the player
             codename (str): Name of the player
             equipment_id (int, optional): Equipment ID for broadcasting
+            team (str): Team name - "red" or "green"
             
         Returns:
             dict: Response data with player information
         """
         data = {
             "id": player_id,
-            "codename": codename
+            "codename": codename,
+            "team": team.lower()
         }
         
         if equipment_id is not None:
@@ -217,6 +219,42 @@ class ApiClient:
             return self._handle_response(response)
         except Exception as e:
             logger.error(f"Failed to broadcast equipment ID: {e}")
+            return {"error": str(e)}
+    
+    def get_game_state(self) -> Dict:
+        """
+        Get current game state including all player scores and team totals.
+        
+        Returns:
+            dict: Game state data with structure:
+            {
+                "is_active": true,
+                "red_team": {
+                    "players": [{"equipment_id": 1, "codename": "Player1", "score": 10, "hit_base": false}],
+                    "total_score": 10
+                },
+                "green_team": {...}
+            }
+        """
+        try:
+            response = self.session.get(f"{self.base_url}/game/state")
+            return self._handle_response(response)
+        except Exception as e:
+            logger.error(f"Failed to get game state: {e}")
+            return {"error": str(e)}
+    
+    def reset_game(self) -> Dict:
+        """
+        Reset game state (scores, base hits) without clearing players.
+        
+        Returns:
+            dict: Response message
+        """
+        try:
+            response = self.session.post(f"{self.base_url}/game/reset")
+            return self._handle_response(response)
+        except Exception as e:
+            logger.error(f"Failed to reset game: {e}")
             return {"error": str(e)}
     
     # System Status Endpoint
