@@ -1,17 +1,35 @@
 import logging
 from threading import Lock
+from datetime import datetime
+from collections import deque
 
 logger = logging.getLogger(__name__)
 
 class GameState:
     """
     Manages the game state including player scores, teams, and equipment mappings.
+    Implemented as a singleton to ensure one source of truth.
     """
+    _instance = None
+    _lock = Lock()
+    
+    def __new__(cls):
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+        return cls._instance
     
     def __init__(self):
+        # Prevent re-initialization
+        if hasattr(self, '_initialized'):
+            return
+        self._initialized = True
+        
         self.lock = Lock()
         self.players = {}  # equipment_id -> {player_id, codename, team, score, hit_base}
         self.is_game_active = False
+        self.events = deque(maxlen=50)  # Keep last 50 events for action log
         
     def add_player(self, equipment_id, player_id, codename, team):
         """
@@ -43,21 +61,27 @@ class GameState:
         with self.lock:
             return dict(self.players)
     
-    def update_score(self, equipment_id, points):
+    def update_score(self, equipment_id, points, event_message=None):
         """
         Update a player's score
         
         Args:
             equipment_id: Equipment ID of the player
             points: Points to add (can be negative)
+            event_message: Optional custom message for event log
         
         Returns:
             New score or None if player not found
         """
         with self.lock:
             if equipment_id in self.players:
+                old_score = self.players[equipment_id]['score']
                 self.players[equipment_id]['score'] += points
                 new_score = self.players[equipment_id]['score']
+                
+                if event_message:
+                    self._add_event(event_message)
+                
                 logger.info(f"Player {equipment_id} score updated by {points} to {new_score}")
                 return new_score
             return None
@@ -134,4 +158,25 @@ class GameState:
         with self.lock:
             self.players.clear()
             self.is_game_active = False
+            self.events.clear()
             logger.info("All players cleared from game state")
+    
+    def _add_event(self, message, event_type="info"):
+        """Add event to history (internal use, assumes lock is held)"""
+        event = {
+            'timestamp': datetime.now().strftime('%H:%M:%S'),
+            'message': message,
+            'type': event_type
+        }
+        self.events.append(event)
+    
+    def add_event(self, message, event_type="info"):
+        """Add event to history (thread-safe public method)"""
+        with self.lock:
+            self._add_event(message, event_type)
+    
+    def get_recent_events(self, count=10):
+        """Get recent events for display"""
+        with self.lock:
+            # Return most recent events (last 'count' items)
+            return list(self.events)[-count:]

@@ -115,7 +115,20 @@ def process_received_udp_data(message):
                 # Regular player hit
                 # Check for friendly fire
                 if game_state.is_friendly_fire(transmitting_id, hit_id):
-                    logger.warning(f"FRIENDLY FIRE: Player {transmitting_id} hit teammate {hit_id}")
+                    # Get player info for event message
+                    attacker = game_state.get_player(transmitting_id)
+                    victim = game_state.get_player(hit_id)
+                    
+                    attacker_name = attacker['codename'] if attacker else f"#{transmitting_id}"
+                    victim_name = victim['codename'] if victim else f"#{hit_id}"
+                    
+                    logger.warning(f"FRIENDLY FIRE: {attacker_name} hit teammate {victim_name}")
+                    
+                    # Log event
+                    game_state.add_event(
+                        f"⚠️ FRIENDLY FIRE! {attacker_name} hit {victim_name} (-10 pts each)",
+                        event_type="friendly_fire"
+                    )
                     
                     # Broadcast both equipment IDs (requirement for friendly fire)
                     broadcast_equipment_id(transmitting_id)
@@ -128,7 +141,20 @@ def process_received_udp_data(message):
                     
                 else:
                     # Normal hit: +10 points to attacker
-                    logger.info(f"Valid hit: Player {transmitting_id} hit enemy {hit_id}")
+                    attacker = game_state.get_player(transmitting_id)
+                    victim = game_state.get_player(hit_id)
+                    
+                    attacker_name = attacker['codename'] if attacker else f"#{transmitting_id}"
+                    victim_name = victim['codename'] if victim else f"#{hit_id}"
+                    
+                    logger.info(f"Valid hit: {attacker_name} hit enemy {victim_name}")
+                    
+                    # Log event
+                    game_state.add_event(
+                        f"💥 {attacker_name} hit {victim_name} (+10 pts)",
+                        event_type="hit"
+                    )
+                    
                     broadcast_equipment_id(hit_id)
                     game_state.update_score(transmitting_id, 10)
             
@@ -368,11 +394,24 @@ def get_game_state():
             'green_team': {
                 'players': green_team,
                 'total_score': game_state.get_team_score('green')
-            }
+            },
+            'events': game_state.get_recent_events(10)  # Include recent events
         }), 200
         
     except Exception as e:
         logger.error(f"Error getting game state: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+#get recent game events for action log
+@app.route('/game/events', methods=['GET'])
+def get_game_events():
+    try:
+        count = request.args.get('count', default=10, type=int)
+        count = min(count, 50)  # Max 50 events
+        events = game_state.get_recent_events(count)
+        return jsonify({'events': events}), 200
+    except Exception as e:
+        logger.error(f"Error getting game events: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 #reset game state
