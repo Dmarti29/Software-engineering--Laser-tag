@@ -6,3 +6,4 @@ flask-cors==4.0.0
 # Frontend dependencies
 pillow==10.0.0  # For image processing in splash screen
 requests==2.31.0  # For API communication
+pygame==2.6.1
