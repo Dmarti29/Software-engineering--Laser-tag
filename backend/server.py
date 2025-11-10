@@ -23,6 +23,24 @@ current_network_address = "127.0.0.1"
 broadcast_port = 7500
 receive_port = 7501
 
+# Event tracking for real-time updates
+game_events = []  # List of recent game events
+MAX_EVENTS = 100  # Keep last 100 events
+
+def add_game_event(event_type, message, details=None):
+    """Add a game event to the events queue"""
+    event = {
+        'type': event_type,
+        'message': message,
+        'timestamp': time.time(),
+        'details': details or {}
+    }
+    game_events.append(event)
+    # Keep only recent events
+    if len(game_events) > MAX_EVENTS:
+        game_events.pop(0)
+    return event
+
 
 #sets up udp sockets for broadcast and receieve
 def setup_udp_sockets():
@@ -88,49 +106,70 @@ def process_received_udp_data(message):
             
             logger.info(f"Player {transmitting_id} hit target {hit_id}")
             
+            # Get player info
+            attacker = game_state.get_player(transmitting_id)
+            attacker_name = attacker['codename'] if attacker else f"Player {transmitting_id}"
+            
             # Check for base scoring
             if hit_id == 53:
-                # Red base hit - check if attacker is on green team
-                attacker = game_state.get_player(transmitting_id)
+                # Red base hit
                 if attacker and attacker['team'] == 'green':
-                    logger.info(f"GREEN team player {transmitting_id} hit RED base! +100 points")
+                    logger.info(f"🎯 GREEN team {attacker_name} hit RED base! +100 points")
                     game_state.update_score(transmitting_id, 100)
                     game_state.mark_base_hit(transmitting_id)
+                    add_game_event('base_hit', f"{attacker_name} hit RED BASE! (+100 points)", 
+                                 {'attacker_id': transmitting_id, 'attacker': attacker_name, 'points': 100})
                     broadcast_equipment_id(hit_id)
                 else:
-                    logger.warning(f"RED team player {transmitting_id} hit own base - no points awarded")
+                    logger.warning(f"RED team {attacker_name} hit own base - no points")
+                    add_game_event('own_base', f"{attacker_name} hit own base (no points)",
+                                 {'attacker_id': transmitting_id, 'attacker': attacker_name})
                     
             elif hit_id == 43:
-                # Green base hit - check if attacker is on red team
-                attacker = game_state.get_player(transmitting_id)
+                # Green base hit
                 if attacker and attacker['team'] == 'red':
-                    logger.info(f"RED team player {transmitting_id} hit GREEN base! +100 points")
+                    logger.info(f"🎯 RED team {attacker_name} hit GREEN base! +100 points")
                     game_state.update_score(transmitting_id, 100)
                     game_state.mark_base_hit(transmitting_id)
+                    add_game_event('base_hit', f"{attacker_name} hit GREEN BASE! (+100 points)",
+                                 {'attacker_id': transmitting_id, 'attacker': attacker_name, 'points': 100})
                     broadcast_equipment_id(hit_id)
                 else:
-                    logger.warning(f"GREEN team player {transmitting_id} hit own base - no points awarded")
+                    logger.warning(f"GREEN team {attacker_name} hit own base - no points")
+                    add_game_event('own_base', f"{attacker_name} hit own base (no points)",
+                                 {'attacker_id': transmitting_id, 'attacker': attacker_name})
                     
             else:
                 # Regular player hit
+                victim = game_state.get_player(hit_id)
+                victim_name = victim['codename'] if victim else f"Player {hit_id}"
+                
                 # Check for friendly fire
                 if game_state.is_friendly_fire(transmitting_id, hit_id):
-                    logger.warning(f"FRIENDLY FIRE: Player {transmitting_id} hit teammate {hit_id}")
+                    logger.warning(f"⚠️  FRIENDLY FIRE! {attacker_name} hit teammate {victim_name}")
                     
-                    # Broadcast both equipment IDs (requirement for friendly fire)
+                    # Broadcast both equipment IDs
                     broadcast_equipment_id(transmitting_id)
-                    time.sleep(0.05)  # Small delay between broadcasts
+                    time.sleep(0.05)
                     broadcast_equipment_id(hit_id)
                     
                     # Apply -10 points to both players
                     game_state.update_score(transmitting_id, -10)
                     game_state.update_score(hit_id, -10)
                     
+                    add_game_event('friendly_fire', f"🚨 FRIENDLY FIRE! {attacker_name} hit {victim_name} (-10 points each)",
+                                 {'attacker_id': transmitting_id, 'attacker': attacker_name,
+                                  'victim_id': hit_id, 'victim': victim_name, 'points': -10})
+                    
                 else:
                     # Normal hit: +10 points to attacker
-                    logger.info(f"Valid hit: Player {transmitting_id} hit enemy {hit_id}")
+                    logger.info(f"✓ {attacker_name} hit enemy {victim_name} (+10 points)")
                     broadcast_equipment_id(hit_id)
                     game_state.update_score(transmitting_id, 10)
+                    
+                    add_game_event('hit', f"{attacker_name} hit {victim_name} (+10 points)",
+                                 {'attacker_id': transmitting_id, 'attacker': attacker_name,
+                                  'victim_id': hit_id, 'victim': victim_name, 'points': 10})
             
         elif message.isdigit():
             equipment_id = int(message)
@@ -138,16 +177,9 @@ def process_received_udp_data(message):
             
             # Base scoring codes
             if equipment_id == 53:
-                # Red base was hit - award points to the last green team player who transmitted
-                logger.info("Red base (code 53) hit!")
-                # Note: Without context of who hit it, we can't award points here
-                # This would typically come in format equipment_id:53
-                
+                logger.info("Red base signal received")
             elif equipment_id == 43:
-                # Green base was hit - award points to the last red team player who transmitted
-                logger.info("Green base (code 43) hit!")
-                # Note: Without context of who hit it, we can't award points here
-                # This would typically come in format equipment_id:43
+                logger.info("Green base signal received")
                 
     except Exception as e:
         logger.error(f"Failed to process UDP data '{message}': {e}")
@@ -245,6 +277,7 @@ def clear_all_players():
     try:
         if db.clear_all_players():
             game_state.clear_all_players()
+            game_events.clear()  # Clear events too
             return jsonify({'message': 'All players cleared successfully'}), 200
         else:
             return jsonify({'error': 'Failed to clear players'}), 500
@@ -326,6 +359,7 @@ def end_game():
                 return jsonify({'error': f'Failed to broadcast game end (attempt {i+1})'}), 500
             time.sleep(0.1)  # delay between broadcasts
             
+        add_game_event('game_end', 'Game ended!')
         return jsonify({'message': 'Game ended - code 221 broadcasted 3 times'}), 200
     except Exception as e:
         logger.error(f"Error ending game: {e}")
@@ -375,11 +409,31 @@ def get_game_state():
         logger.error(f"Error getting game state: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
+#get recent game events for play-by-play
+@app.route('/game/events', methods=['GET'])
+def get_game_events():
+    try:
+        # Optional: filter by timestamp
+        since = request.args.get('since', type=float)
+        
+        if since:
+            filtered_events = [e for e in game_events if e['timestamp'] > since]
+            return jsonify({'events': filtered_events}), 200
+        else:
+            # Return last 20 events
+            return jsonify({'events': game_events[-20:]}), 200
+            
+    except Exception as e:
+        logger.error(f"Error getting events: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 #reset game state
 @app.route('/game/reset', methods=['POST'])
 def reset_game():
     try:
         game_state.reset_game()
+        game_events.clear()
+        add_game_event('game_reset', 'Game reset - all scores cleared')
         return jsonify({'message': 'Game state reset successfully'}), 200
     except Exception as e:
         logger.error(f"Error resetting game: {e}")
