@@ -9,7 +9,7 @@ class PlayActionScreen(tk.Frame):
         self.players_green = players_green
         
         # Timer variables
-        self.time_remaining = 300  # 5 minutes in seconds
+        self.time_remaining = 6 * 60  # 6 minutes in seconds
         self.timer_label = None
 
         # divide scoreboard into 2
@@ -77,7 +77,7 @@ class PlayActionScreen(tk.Frame):
         # Timer
         self.timer_label = tk.Label(
             self.bottom_frame,
-            text = "Time Remaining: 05:00",
+            text = "Time Remaining: 06:00",
             font = ("Arial", 18, "bold"),
             fg = "cyan",
             bg = "#0f0f0f"
@@ -102,11 +102,15 @@ class PlayActionScreen(tk.Frame):
     
     def update_timer(self):
         """Update the countdown timer every second"""
-        if self.time_remaining > 0:
-            minutes = self.time_remaining // 60
-            seconds = self.time_remaining % 60
-            self.timer_label.config(text = f"Time Remaining: {minutes:02d}:{seconds:02d}")
-            self.time_remaining -= 1
-            self.after(1000, self.update_timer)  # Update every 1000ms (1 second)
-        else:
-            self.timer_label.config(text = "Time Remaining: 00:00", fg = "red")
+        if self.time_remaining <= 0:
+            self.timer_label.config(text="Time Remaining: 00:00")
+            return
+
+        minutes = self.time_remaining // 60
+        seconds = self.time_remaining % 60
+        time_update = f"Time Remaining: {minutes:02d}:{seconds:02d}"
+
+        self.timer_label.config(text=time_update)
+
+        self.time_remaining -= 1
+        self.after(1000, self.update_timer)
