@@ -80,8 +80,19 @@ def process_received_udp_data(message):
     try:
         if ':' in message:
             transmitting_id, hit_id = message.split(':')
-            logger.info(f"Player {transmitting_id} hit player {hit_id}")
-            broadcast_equipment_id(int(hit_id))
+            transmitter = int(transmitting_id)
+            hit_target = int(hit_id)
+            
+            # Friendly fire detection: check if both players are on the same team
+            # Even IDs = Red team, Odd IDs = Green team
+            is_friendly_fire = (transmitter % 2) == (hit_target % 2)
+            
+            if is_friendly_fire:
+                logger.warning(f"FRIENDLY FIRE! Player {transmitter} hit teammate {hit_target}")
+            else:
+                logger.info(f"Player {transmitter} hit enemy player {hit_target}")
+            
+            broadcast_equipment_id(hit_target)
             
         elif message.isdigit():
             equipment_id = int(message)
