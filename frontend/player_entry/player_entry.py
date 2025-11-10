@@ -48,7 +48,7 @@ class PlayerEntry:
         columns_frame = tk.Frame(header_frame)
         columns_frame.pack(fill="x")
         
-        id_label = tk.Label(columns_frame, text="Player ID (Required)", font=("Arial", 10, "bold"), width=15)
+        id_label = tk.Label(columns_frame, text="Player ID (Required)", font=("Arial", 10, "bold"), width=22)
         id_label.pack(side="left", padx=5)
         
         name_label = tk.Label(columns_frame, text="Player Name (Auto-filled or Enter New)", font=("Arial", 10, "bold"))
@@ -63,7 +63,7 @@ class PlayerEntry:
             slot_frame.pack(fill="x", pady=2)
             
             # Create ID entry field (first, as it's required)
-            id_entry = tk.Entry(slot_frame, font=("Arial", 12), justify="center", width=15)
+            id_entry = tk.Entry(slot_frame, font=("Arial", 12), justify="center", width=22)
             id_entry.pack(side="left", padx=5)
             self.player_id_entries.append(id_entry)
             
