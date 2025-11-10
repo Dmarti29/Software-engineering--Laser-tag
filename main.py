@@ -1,9 +1,27 @@
 import sys
 import tkinter as tk
+import pygame
+import random
 from frontend.splashscreen import splash_screen
 from frontend.player_entry.player_entry_component import PlayerEntryComponent
 from frontend.play_action_screen import PlayActionScreen
 from frontend.countdowntimer import CountdownTimer
+
+# Music functions
+def init_music(track_number):
+    """Initialize pygame mixer and load a specific track"""
+    pygame.mixer.init()
+    pygame.mixer.music.load(f"photon_tracks/Track0{track_number}.mp3")
+    pygame.mixer.music.set_volume(0.4)
+
+def start_music():
+    """Start playing music in loop"""
+    pygame.mixer.music.play(-1)  # -1 means loop indefinitely
+
+def stop_music():
+    """Stop playing music"""
+    pygame.mixer.music.stop()
+
 # start up the player entry screen
 def show_player_entry_screen(window):
     player_entry_screen = PlayerEntryComponent(window)
@@ -25,6 +43,12 @@ def show_player_entry_screen(window):
         # show countdown timer with images 30-1
         countdown_images = [f"frontend/assets/{i}.tif" for i in range(30, 0, -1)]
         
+        # Schedule music to start 15 seconds after countdown begins
+        window.after(15000, start_music)
+        
+        # Schedule music to stop after game ends (6 minutes + 30 seconds pregame countdown = 390 seconds)
+        window.after(390000, stop_music)
+        
         def show_play_action_after_countdown(window):
             play_action = PlayActionScreen(window, red_team_players, green_team_players)
             play_action.pack(expand=True, fill="both")
@@ -38,6 +62,10 @@ def main():
     window = tk.Tk()
     window.title("Photon - Player Entry")
     window.geometry("1300x800")
+    
+    # Initialize music with random track (1-8)
+    random_track = random.randint(1, 8)
+    init_music(random_track)
 
     time_duration = 30 # default for pressing start game
     if len(sys.argv) > 1:

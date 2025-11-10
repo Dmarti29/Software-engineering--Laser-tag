@@ -23,7 +23,28 @@ apt-get install -y \
     python3-flask-cors \
     python3-requests \
     postgresql \
-    postgresql-contrib
+    postgresql-contrib \
+    build-essential \
+    python3-dev
+
+# Install SDL and multimedia libraries for pygame
+echo "Installing SDL and multimedia dependencies for pygame..."
+apt-get install -y \
+    libsdl2-dev \
+    libsdl2-image-dev \
+    libsdl2-mixer-dev \
+    libsdl2-ttf-dev \
+    libportmidi-dev \
+    libswscale-dev \
+    libavformat-dev \
+    libavcodec-dev \
+    libfreetype6-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    libx11-dev \
+    libxext-dev \
+    libxrandr-dev
 
 # Start PostgreSQL service
 echo "Starting PostgreSQL service..."
@@ -48,6 +69,18 @@ source .venv/bin/activate
 echo "Installing dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
+
+# Test pygame installation
+echo "Testing pygame installation..."
+python3 - <<'EOF'
+try:
+    import pygame
+    pygame.init()
+    print("Pygame initialized successfully ✅")
+except Exception as e:
+    print("Pygame installation failed ❌")
+    print(e)
+EOF
 
 echo ""
 echo "==== Installation Complete ====" 
