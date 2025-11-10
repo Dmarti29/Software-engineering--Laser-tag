@@ -6,11 +6,16 @@ This branch (`test-friendly-fire`) contains friendly fire detection logic that n
 
 ### Backend Changes
 - **File**: `backend/server.py`
-- **Feature**: Friendly fire detection in `process_received_udp_data()`
+- **Features**:
+  1. **Friendly fire detection** in `process_received_udp_data()`
+  2. **Real-time scoring system** with point tracking
 - **Logic**: 
   - Even player IDs = Red Team
   - Odd player IDs = Green Team
   - If shooter and target have same parity (both even or both odd) = FRIENDLY FIRE
+- **Scoring Rules**:
+  - ✅ Enemy hit: Shooter gains **+10 points**
+  - ⚠️ Friendly fire: Both shooter AND victim lose **-10 points each**
 
 ## Testing Workflow
 
@@ -68,27 +73,46 @@ This branch (`test-friendly-fire`) contains friendly fire detection logic that n
 
 The test script sends these scenarios:
 
-| Test | Shooter | Target | Expected Result |
-|------|---------|--------|----------------|
-| 1 | Red (ID 2) | Red (ID 4) | ⚠️ FRIENDLY FIRE |
-| 2 | Green (ID 1) | Green (ID 3) | ⚠️ FRIENDLY FIRE |
-| 3 | Red (ID 2) | Green (ID 1) | ✓ VALID HIT |
-| 4 | Green (ID 1) | Red (ID 2) | ✓ VALID HIT |
-| 5 | Red (ID 6) | Red (ID 8) | ⚠️ FRIENDLY FIRE |
-| 6 | Green (ID 5) | Green (ID 7) | ⚠️ FRIENDLY FIRE |
-| 7 | Red (ID 10) | Green (ID 11) | ✓ VALID HIT |
-| 8 | Green (ID 11) | Red (ID 10) | ✓ VALID HIT |
+| Test | Shooter | Target | Expected Result | Shooter Score | Target Score |
+|------|---------|--------|----------------|---------------|--------------|
+| 1 | Red (ID 2) | Red (ID 4) | ⚠️ FRIENDLY FIRE | -10 | -10 |
+| 2 | Green (ID 1) | Green (ID 3) | ⚠️ FRIENDLY FIRE | -10 | -10 |
+| 3 | Red (ID 2) | Green (ID 1) | ✓ VALID HIT | +10 | 0 |
+| 4 | Green (ID 1) | Red (ID 2) | ✓ VALID HIT | +10 | 0 |
+| 5 | Red (ID 6) | Red (ID 8) | ⚠️ FRIENDLY FIRE | -10 | -10 |
+| 6 | Green (ID 5) | Green (ID 7) | ⚠️ FRIENDLY FIRE | -10 | -10 |
+| 7 | Red (ID 10) | Green (ID 11) | ✓ VALID HIT | +10 | 0 |
+| 8 | Green (ID 11) | Red (ID 10) | ✓ VALID HIT | +10 | 0 |
+
+### Final Expected Scores
+
+After all 8 tests:
+- **Player 2 (Red)**: -10 + 10 - 0 = **0 points**
+- **Player 4 (Red)**: -10 = **-10 points**
+- **Player 6 (Red)**: -10 = **-10 points**
+- **Player 8 (Red)**: -10 = **-10 points**
+- **Player 10 (Red)**: +10 - 0 = **+10 points**
+- **Player 1 (Green)**: -10 + 10 = **0 points**
+- **Player 3 (Green)**: -10 = **-10 points**
+- **Player 5 (Green)**: -10 = **-10 points**
+- **Player 7 (Green)**: -10 = **-10 points**
+- **Player 11 (Green)**: +10 = **+10 points**
 
 ### Backend Log Examples
 
 **Friendly Fire:**
 ```
-WARNING:__main__:FRIENDLY FIRE! Player 2 hit teammate 4
+WARNING:__main__:⚠️  FRIENDLY FIRE! Player 2 hit teammate 4
+INFO:__main__:Player 2 score updated: -10 points -> Total: -10
+INFO:__main__:Player 4 score updated: -10 points -> Total: -10
+WARNING:__main__:   Both players penalized -10 points
 ```
 
 **Valid Hit:**
 ```
-INFO:__main__:Player 2 hit enemy player 1
+INFO:__main__:✓ Player 2 hit enemy player 1
+INFO:__main__:Player 2 score updated: +10 points -> Total: 0
+INFO:__main__:   Player 2 awarded +10 points
 ```
 
 ## Troubleshooting

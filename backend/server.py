@@ -21,6 +21,21 @@ current_network_address = "127.0.0.1"
 broadcast_port = 7500
 receive_port = 7501
 
+# Player scoring system
+player_scores = {}  # {player_id: score}
+
+def initialize_player_score(player_id):
+    """Initialize a player's score if not already tracked"""
+    if player_id not in player_scores:
+        player_scores[player_id] = 0
+
+def update_score(player_id, points):
+    """Update a player's score by adding points (can be negative)"""
+    initialize_player_score(player_id)
+    player_scores[player_id] += points
+    logger.info(f"Player {player_id} score updated: {points:+d} points -> Total: {player_scores[player_id]}")
+    return player_scores[player_id]
+
 
 #sets up udp sockets for broadcast and receieve
 def setup_udp_sockets():
@@ -88,11 +103,17 @@ def process_received_udp_data(message):
             is_friendly_fire = (transmitter % 2) == (hit_target % 2)
             
             if is_friendly_fire:
-                logger.warning(f"FRIENDLY FIRE! Player {transmitter} hit teammate {hit_target}")
-                # Still broadcast the hit, but log it as friendly fire
+                # FRIENDLY FIRE: Both players lose 10 points
+                logger.warning(f"⚠️  FRIENDLY FIRE! Player {transmitter} hit teammate {hit_target}")
+                update_score(transmitter, -10)  # Shooter loses 10 points
+                update_score(hit_target, -10)   # Victim loses 10 points
+                logger.warning(f"   Both players penalized -10 points")
                 broadcast_equipment_id(hit_target)
             else:
-                logger.info(f"Player {transmitter} hit enemy player {hit_target}")
+                # VALID HIT: Shooter gains 10 points
+                logger.info(f"✓ Player {transmitter} hit enemy player {hit_target}")
+                update_score(transmitter, 10)  # Shooter gains 10 points
+                logger.info(f"   Player {transmitter} awarded +10 points")
                 broadcast_equipment_id(hit_target)
             
         elif message.isdigit():
@@ -100,9 +121,9 @@ def process_received_udp_data(message):
             logger.info(f"Received single equipment ID: {equipment_id}")
             
             if equipment_id == 53:
-                logger.info("Red base scored!")
+                logger.info("🎯 Red base scored!")
             elif equipment_id == 43:
-                logger.info("Green base scored!")
+                logger.info("🎯 Green base scored!")
                 
     except Exception as e:
         logger.error(f"Failed to process UDP data '{message}': {e}")
@@ -158,6 +179,9 @@ def add_player():
             return jsonify({'error': 'Codename is required for new players'}), 400
             
         if db.add_player(player_id, codename):
+            # Initialize player score to 0
+            initialize_player_score(player_id)
+            
             if equipment_id:
                 broadcast_equipment_id(equipment_id)
                 
@@ -165,6 +189,7 @@ def add_player():
                 'id': player_id,
                 'codename': codename,
                 'equipment_id': equipment_id,
+                'score': player_scores.get(player_id, 0),
                 'message': 'Player added successfully'
             }), 201
         else:
@@ -280,6 +305,44 @@ def end_game():
         return jsonify({'message': 'Game ended - code 221 broadcasted 3 times'}), 200
     except Exception as e:
         logger.error(f"Error ending game: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+# Score management endpoints
+@app.route('/scores', methods=['GET'])
+def get_all_scores():
+    """Get scores for all players"""
+    try:
+        return jsonify({
+            'scores': player_scores,
+            'count': len(player_scores)
+        }), 200
+    except Exception as e:
+        logger.error(f"Error getting scores: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/scores/<int:player_id>', methods=['GET'])
+def get_player_score(player_id):
+    """Get score for a specific player"""
+    try:
+        initialize_player_score(player_id)
+        return jsonify({
+            'player_id': player_id,
+            'score': player_scores[player_id]
+        }), 200
+    except Exception as e:
+        logger.error(f"Error getting score for player {player_id}: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/scores/reset', methods=['POST'])
+def reset_all_scores():
+    """Reset all player scores to 0"""
+    try:
+        global player_scores
+        player_scores = {}
+        logger.info("All player scores reset to 0")
+        return jsonify({'message': 'All scores reset successfully'}), 200
+    except Exception as e:
+        logger.error(f"Error resetting scores: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 #health checks
