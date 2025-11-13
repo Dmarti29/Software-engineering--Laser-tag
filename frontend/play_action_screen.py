@@ -32,6 +32,10 @@ class PlayActionScreen(tk.Frame):
         # Frames to hold dynamic player lists
         self.red_players_frame = None
         self.green_players_frame = None
+        
+        # Flash state for winning team
+        self.flash_state = False
+        self.start_flashing()
 
         # divide scoreboard into 2
         self.top_frame = tk.Frame(self, bg = "#1a1a1a", highlightbackground = "white", highlightthickness = 2)
@@ -253,6 +257,11 @@ class PlayActionScreen(tk.Frame):
         # Poll every 1 second for events
         self.after(1000, self.poll_game_events)
     
+    def start_flashing(self):
+        """Toggle flash state every 500ms for winning team effect"""
+        self.flash_state = not self.flash_state
+        self.after(500, self.start_flashing)
+    
     def update_scores(self, game_data):
         """Update score labels with current scores (sorted by score, with team totals)"""
         try:
@@ -261,9 +270,23 @@ class PlayActionScreen(tk.Frame):
             red_players = red_team_data.get('players', [])
             red_total = red_team_data.get('total_score', 0)
             
-            # Update red team total
+            # Update green team data
+            green_team_data = game_data.get('green_team', {})
+            green_players = green_team_data.get('players', [])
+            green_total = green_team_data.get('total_score', 0)
+            
+            # Determine winning team
+            red_winning = red_total > green_total
+            green_winning = green_total > red_total
+            
+            # Update red team total with flashing if winning
             if self.red_team_total_label:
-                self.red_team_total_label.config(text=f"Total: {red_total}")
+                if red_winning and self.flash_state:
+                    self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FF0000")  # Bright red
+                elif red_winning:
+                    self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FFD700")  # Gold
+                else:
+                    self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FFD700")  # Gold (not winning)
             
             # Rebuild red team player list (already sorted highest to lowest by backend)
             for widget in self.red_players_frame.winfo_children():
@@ -279,14 +302,14 @@ class PlayActionScreen(tk.Frame):
                 tk.Label(row, text = codename, font = ("Arial", 16), fg = "white", bg = "#1a1a1a", anchor = "e").pack(side = "left", padx = 10)
                 tk.Label(row, text = str(score), font = ("Arial", 16, "bold"), fg = "yellow", bg = "#1a1a1a", anchor = "e").pack(side = "right", padx = 10)
             
-            # Update green team
-            green_team_data = game_data.get('green_team', {})
-            green_players = green_team_data.get('players', [])
-            green_total = green_team_data.get('total_score', 0)
-            
-            # Update green team total
+            # Update green team total with flashing if winning
             if self.green_team_total_label:
-                self.green_team_total_label.config(text=f"Total: {green_total}")
+                if green_winning and self.flash_state:
+                    self.green_team_total_label.config(text=f"Total: {green_total}", fg="#00FF00")  # Bright green
+                elif green_winning:
+                    self.green_team_total_label.config(text=f"Total: {green_total}", fg="#FFD700")  # Gold
+                else:
+                    self.green_team_total_label.config(text=f"Total: {green_total}", fg="#FFD700")  # Gold (not winning)
             
             # Rebuild green team player list (already sorted highest to lowest by backend)
             for widget in self.green_players_frame.winfo_children():
