@@ -47,8 +47,8 @@ class PlayActionScreen(tk.Frame):
         self.build_top_half()
         self.build_bottom_half()
         
-        # Start with pregame countdown
-        self.pregame_countdown()
+        # Start game timer immediately (pregame countdown already happened)
+        self.update_game_timer()
         # Start polling immediately
         self.poll_game_state()
         self.poll_game_events()
@@ -171,31 +171,6 @@ class PlayActionScreen(tk.Frame):
         if self.return_callback:
             self.return_callback()
     
-    def pregame_countdown(self):
-        self.pre_time_remaining = 30 # 30 seconds
-        self.update_pregame_timer()
-
-    def update_pregame_timer(self):
-        if self.pre_time_remaining <= 0:
-            self.timer_label.config(text="Time Remaining: 06:00")
-            self.time_remaining = 6 * 60
-            
-            # Call backend to start game (broadcasts code 202)
-            try:
-                requests.post(f"{self.api_url}/game/start", timeout=1)
-                logger.info("Game started - code 202 broadcasted")
-            except Exception as e:
-                logger.error(f"Failed to start game: {e}")
-            
-            self.update_game_timer()
-            return
-        
-        minutes = self.pre_time_remaining // 60
-        seconds = self.pre_time_remaining % 60
-        self.timer_label.config(text=f"Game starts in: {minutes:02d}:{seconds:02d}")
-
-        self.pre_time_remaining -= 1
-        self.after(1000, self.update_pregame_timer)
 
     def update_game_timer(self):
         """Update the countdown timer every second"""

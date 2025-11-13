@@ -50,6 +50,14 @@ def show_player_entry_screen(window):
         window.after(390000, stop_music)
         
         def show_play_action_after_countdown(window):
+            # Countdown finished! Now call backend to start game (broadcasts code 202)
+            try:
+                import requests
+                requests.post("http://localhost:5000/game/start", timeout=1)
+                print("Game started - code 202 broadcasted")
+            except Exception as e:
+                print(f"Failed to start game: {e}")
+            
             def return_to_entry():
                 """Return to player entry screen"""
                 # Stop music if playing
