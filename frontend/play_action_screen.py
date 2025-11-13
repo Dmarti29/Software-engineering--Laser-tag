@@ -5,8 +5,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 class PlayActionScreen(tk.Frame):
-    def __init__(self, parent, players_red, players_green, api_url="http://localhost:5000"):
+    def __init__(self, parent, players_red, players_green, api_url="http://localhost:5000", return_callback=None):
         super().__init__(parent, bg = "black")
+        
+        # Store callback for returning to player entry
+        self.return_callback = return_callback
         
         # store user entered player names
         self.players_red = players_red
@@ -124,6 +127,39 @@ class PlayActionScreen(tk.Frame):
         self.action_text.tag_config("base_hit", foreground="#4ECDC4", font=("Arial", 14, "bold"))
         self.action_text.tag_config("normal_hit", foreground="white")
         self.action_text.tag_config("timestamp", foreground="#888888", font=("Arial", 12))
+        
+        # Add Return to Player Entry button
+        if self.return_callback:
+            button_frame = tk.Frame(self.bottom_frame, bg = "#0f0f0f")
+            button_frame.pack(pady = 10)
+            
+            return_button = tk.Button(
+                button_frame,
+                text = "Return to Player Entry",
+                font = ("Arial", 14, "bold"),
+                fg = "white",
+                bg = "#FF6B6B",
+                activebackground = "#FF5252",
+                activeforeground = "white",
+                relief = "raised",
+                bd = 3,
+                padx = 20,
+                pady = 10,
+                command = self.return_to_player_entry
+            )
+            return_button.pack()
+    
+    def return_to_player_entry(self):
+        """Handle returning to player entry screen"""
+        try:
+            # Stop any ongoing timers
+            self.after_cancel(self.update_game_timer)
+        except:
+            pass
+        
+        # Call the return callback if provided
+        if self.return_callback:
+            self.return_callback()
     
     def pregame_countdown(self):
         self.pre_time_remaining = 30 # 30 seconds

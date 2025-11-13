@@ -50,7 +50,17 @@ def show_player_entry_screen(window):
         window.after(390000, stop_music)
         
         def show_play_action_after_countdown(window):
-            play_action = PlayActionScreen(window, red_team_players, green_team_players)
+            def return_to_entry():
+                """Return to player entry screen"""
+                # Stop music if playing
+                stop_music()
+                # Hide play action screen
+                for widget in window.winfo_children():
+                    widget.pack_forget()
+                # Show player entry screen again
+                show_player_entry_screen(window)
+            
+            play_action = PlayActionScreen(window, red_team_players, green_team_players, return_callback=return_to_entry)
             play_action.pack(expand=True, fill="both")
         
         CountdownTimer(window, countdown_images, duration=1, next_screen=show_play_action_after_countdown)
