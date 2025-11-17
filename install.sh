@@ -55,45 +55,10 @@ echo "Starting PostgreSQL service..."
 systemctl start postgresql
 systemctl enable postgresql
 
-echo "Creating Python virtual environment..."
-
-# Create virtual environment if it doesn't exist
-if [ ! -d ".venv" ]; then
-    python3 -m venv .venv
-    echo "Virtual environment created."
-else
-    echo "Virtual environment already exists."
-fi
-
-# Activate virtual environment
-echo "Activating virtual environment..."
-source .venv/bin/activate
-
-# Install dependencies
-echo "Installing dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
-
-# Test pygame installation
-echo "Testing pygame installation..."
-python3 - <<'EOF'
-try:
-    import pygame
-    pygame.init()
-    print("Pygame initialized successfully ✅")
-except Exception as e:
-    print("Pygame installation failed ❌")
-    print(e)
-EOF
-
 echo ""
 echo "==== Installation Complete ====" 
 echo ""
-echo "To run the application (system-wide, no venv needed):"
-echo "  Backend:  python3 -m backend.server"
-echo "  Frontend: python3 main.py"
-echo ""
-echo "OR to run with virtual environment:"
-echo "1. Activate the virtual environment:   source .venv/bin/activate"
-echo "2. Start the application:              python main.py"
+echo "To run the application:"
+echo "1. Start backend (in one terminal):   python3 -m backend.server"
+echo "2. Start frontend (in another terminal): python3 main.py"
 echo ""

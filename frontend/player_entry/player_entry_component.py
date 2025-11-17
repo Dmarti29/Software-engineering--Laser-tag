@@ -6,7 +6,6 @@ import time
 from frontend.player_entry.player_teams.red_team_entry import RedTeamEntry
 from frontend.player_entry.player_teams.green_team_entry import GreenTeamEntry
 from frontend.player_entry.game_status.start_game import StartGameButton
-from frontend.player_entry.game_status.end_game import EndGameButton
 from frontend.api import ApiClient, transform_players_for_ui
 
 class PlayerEntryComponent(tk.Frame):
@@ -64,12 +63,9 @@ class PlayerEntryComponent(tk.Frame):
         button_frame = tk.Frame(self)
         button_frame.grid(row=3, column=0, columnspan=2, pady=10)
 
-        # Inject Start/Stop Game buttons
+        # Inject Start Game button
         self.start_button = StartGameButton(button_frame)
         self.start_button.pack(side="left", padx=20)
-
-        stop_button = EndGameButton(button_frame, command=self.stop_game)
-        stop_button.pack(side="left", padx=20)
         
         # Start the health check thread
         self.health_thread = threading.Thread(target=self.health_check_loop, daemon=True)
@@ -82,14 +78,6 @@ class PlayerEntryComponent(tk.Frame):
         #    messagebox.showerror("Error", f"Failed to start game: {result['error']}")
         #else:
         #    messagebox.showinfo("Success", "Game started successfully")
-    
-    def stop_game(self):
-        """Stop the game via backend API"""
-        result = self.api_client.end_game()
-        if "error" in result:
-            messagebox.showerror("Error", f"Failed to stop game: {result['error']}")
-        else:
-            messagebox.showinfo("Success", "Game stopped successfully")
 
     # Combined data access methods
     def get_all_players(self):
