@@ -281,9 +281,9 @@ class PlayActionScreen(tk.Frame):
             # Update red team total with flashing if winning
             if self.red_team_total_label:
                 if red_winning and self.flash_state:
-                    self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FF0000")  # Bright red
+                    self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FFFFFF")  # White (flash)
                 elif red_winning:
-                    self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FFD700")  # Gold
+                    self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FF0000")  # Red (winning)
                 else:
                     self.red_team_total_label.config(text=f"Total: {red_total}", fg="#FFD700")  # Gold (not winning)
             
@@ -310,9 +310,9 @@ class PlayActionScreen(tk.Frame):
             # Update green team total with flashing if winning
             if self.green_team_total_label:
                 if green_winning and self.flash_state:
-                    self.green_team_total_label.config(text=f"Total: {green_total}", fg="#00FF00")  # Bright green
+                    self.green_team_total_label.config(text=f"Total: {green_total}", fg="#FFFFFF")  # White (flash)
                 elif green_winning:
-                    self.green_team_total_label.config(text=f"Total: {green_total}", fg="#FFD700")  # Gold
+                    self.green_team_total_label.config(text=f"Total: {green_total}", fg="#00FF00")  # Green (winning)
                 else:
                     self.green_team_total_label.config(text=f"Total: {green_total}", fg="#FFD700")  # Gold (not winning)
             
