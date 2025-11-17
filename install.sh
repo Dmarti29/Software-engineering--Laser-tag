@@ -46,9 +46,9 @@ apt-get install -y \
     libxext-dev \
     libxrandr-dev
 
-# Install pygame system-wide
-echo "Installing pygame system-wide..."
-pip3 install pygame
+# Install pygame using apt (Debian package manager)
+echo "Installing pygame..."
+apt-get install -y python3-pygame
 
 # Start PostgreSQL service
 echo "Starting PostgreSQL service..."

@@ -35,6 +35,11 @@
    sudo ./install.sh
    ```
 
+4. **Install pygame:**
+   ```bash
+   sudo apt install python3-pygame
+   ```
+
 ### Running the Application
 
 1. **Start the backend server (in one terminal):**
