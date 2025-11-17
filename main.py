@@ -44,8 +44,8 @@ def show_player_entry_screen(window):
         # show countdown timer with images 30-1
         countdown_images = [f"frontend/assets/{i}.tif" for i in range(30, 0, -1)]
         
-        # Schedule music to start 15.35 seconds after countdown begins
-        window.after(15350, start_music)  # 15 seconds + 0.35 second delay
+        # Schedule music to start 15.4 seconds after countdown begins
+        window.after(15400, start_music)  # 15 seconds + 0.4 second delay
         
         # Schedule music to stop after game ends (6 minutes + 30 seconds countdown = 390 seconds)
         window.after(390000, stop_music)
