@@ -46,6 +46,10 @@ apt-get install -y \
     libxext-dev \
     libxrandr-dev
 
+# Install pygame system-wide
+echo "Installing pygame system-wide..."
+pip3 install pygame
+
 # Start PostgreSQL service
 echo "Starting PostgreSQL service..."
 systemctl start postgresql
@@ -85,7 +89,11 @@ EOF
 echo ""
 echo "==== Installation Complete ====" 
 echo ""
-echo "To run the application:"
+echo "To run the application (system-wide, no venv needed):"
+echo "  Backend:  python3 -m backend.server"
+echo "  Frontend: python3 main.py"
+echo ""
+echo "OR to run with virtual environment:"
 echo "1. Activate the virtual environment:   source .venv/bin/activate"
 echo "2. Start the application:              python main.py"
 echo ""
