@@ -1,6 +1,7 @@
 import tkinter as tk
 import requests
 import logging
+from PIL import Image, ImageTk
 
 logger = logging.getLogger(__name__)
 
@@ -55,8 +56,9 @@ class PlayActionScreen(tk.Frame):
 
         # load base icon
         try:
-            self.base_icon = tk.PhotoImage(file = "frontend/assets/baseicon.jpg")
-            self.base_icon = self.base_icon.subsample(2, 2)
+            base_img = Image.open("frontend/assets/baseicon.jpg")
+            base_img = base_img.resize((20, 20), Image.Resampling.LANCZOS)  # Resize to 20x20 pixels
+            self.base_icon = ImageTk.PhotoImage(base_img)
         except Exception as e:
             logger.error(f"Failed to load base icon: {e}")
             self.base_icon = None
