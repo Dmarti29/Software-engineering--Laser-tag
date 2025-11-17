@@ -155,7 +155,7 @@ class PlayActionScreen(tk.Frame):
             
             return_button = tk.Button(
                 button_frame,
-                text = "Return to Player Entry",
+                text = "New Game / Restart",
                 font = ("Arial", 14, "bold"),
                 fg = "white",
                 bg = "#FF6B6B",
@@ -170,12 +170,19 @@ class PlayActionScreen(tk.Frame):
             return_button.pack()
     
     def return_to_player_entry(self):
-        """Handle returning to player entry screen"""
+        """Handle returning to player entry screen and reset game"""
         try:
             # Stop any ongoing timers
             self.after_cancel(self.update_game_timer)
         except:
             pass
+        
+        # Reset game state (scores back to zero)
+        try:
+            requests.post(f"{self.api_url}/game/reset", timeout=1)
+            logger.info("Game reset - all scores cleared")
+        except Exception as e:
+            logger.error(f"Failed to reset game: {e}")
         
         # Call the return callback if provided
         if self.return_callback:

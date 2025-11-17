@@ -44,14 +44,16 @@ def show_player_entry_screen(window):
         # show countdown timer with images 30-1
         countdown_images = [f"frontend/assets/{i}.tif" for i in range(30, 0, -1)]
         
-        # Schedule music to start 15 seconds after countdown begins
-        window.after(15000, start_music)
-        
-        # Schedule music to stop after game ends (6 minutes + 30 seconds pregame countdown = 390 seconds)
-        window.after(390000, stop_music)
-        
         def show_play_action_after_countdown(window):
-            # Countdown finished! Now call backend to start game (broadcasts code 202)
+            # Countdown finished! Now start the game
+            
+            # Start music 0.5 seconds after countdown finishes
+            window.after(500, start_music)
+            
+            # Schedule music to stop after 6 minutes (plus 0.5 second delay)
+            window.after(360500, stop_music)  # 6 minutes + 0.5 seconds
+            
+            # Call backend to start game (broadcasts code 202)
             try:
                 import requests
                 requests.post("http://localhost:5000/game/start", timeout=1)
