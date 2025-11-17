@@ -44,22 +44,14 @@ def show_player_entry_screen(window):
         # show countdown timer with images 30-1
         countdown_images = [f"frontend/assets/{i}.tif" for i in range(30, 0, -1)]
         
-        # Schedule music to start 15.5 seconds after countdown begins
-        window.after(15500, start_music)  # 15 seconds + 0.5 second delay
+        # Schedule music to start 15.35 seconds after countdown begins
+        window.after(15350, start_music)  # 15 seconds + 0.35 second delay
         
         # Schedule music to stop after game ends (6 minutes + 30 seconds countdown = 390 seconds)
         window.after(390000, stop_music)
         
         def show_play_action_after_countdown(window):
-            # Countdown finished! Now start the game
-            
-            # Call backend to start game (broadcasts code 202)
-            try:
-                import requests
-                requests.post("http://localhost:5000/game/start", timeout=1)
-                print("Game started - code 202 broadcasted")
-            except Exception as e:
-                print(f"Failed to start game: {e}")
+            # Countdown finished! Now load the play action screen first
             
             def return_to_entry():
                 """Return to player entry screen"""
@@ -73,6 +65,18 @@ def show_player_entry_screen(window):
             
             play_action = PlayActionScreen(window, red_team_players, green_team_players, return_callback=return_to_entry)
             play_action.pack(expand=True, fill="both")
+            
+            # AFTER screen is loaded, broadcast code 202 to start traffic generator
+            # Delay slightly to ensure screen is fully rendered
+            def broadcast_start():
+                try:
+                    import requests
+                    requests.post("http://localhost:5000/game/start", timeout=1)
+                    print("Game started - code 202 broadcasted")
+                except Exception as e:
+                    print(f"Failed to start game: {e}")
+            
+            window.after(100, broadcast_start)  # 100ms delay to ensure screen is ready
         
         CountdownTimer(window, countdown_images, duration=1, next_screen=show_play_action_after_countdown)
 
