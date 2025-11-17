@@ -31,8 +31,9 @@ def show_player_entry_screen(window):
 
     # starts the game and switches to play action screen
     def start_play_action_screen():
-        player_entry_screen.start_game()
-
+        # Don't call start_game() here - it broadcasts 202 immediately!
+        # We'll broadcast 202 AFTER the 30-second countdown finishes
+        
         # retrieve player names
         red_team_players = player_entry_screen.get_red_team_data()["players"]
         green_team_players = player_entry_screen.get_green_team_data()["players"]
