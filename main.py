@@ -76,7 +76,7 @@ def show_player_entry_screen(window):
                 except Exception as e:
                     print(f"Failed to start game: {e}")
             
-            window.after(100, broadcast_start)  # 100ms delay to ensure screen is ready
+            window.after(1150, broadcast_start)  # 1.15 second delay to ensure screen is ready
         
         CountdownTimer(window, countdown_images, duration=1, next_screen=show_play_action_after_countdown)
 
