@@ -53,6 +53,14 @@ class PlayActionScreen(tk.Frame):
         self.poll_game_state()
         self.poll_game_events()
 
+        # load base icon
+        try:
+            self.base_icon = tk.PhotoImage(file = "frontend/assets/baseicon.jpg")
+            self.base_icon = self.base_icon.subsample(2, 2)
+        except Exception as e:
+            logger.error(f"Failed to load base icon: {e}")
+            self.base_icon = None
+
     # CURRENT SCORES (TOP HALF) #
     def build_top_half(self):
         title = tk.Label(
@@ -270,10 +278,16 @@ class PlayActionScreen(tk.Frame):
             for player in red_players:
                 codename = player['codename']
                 score = player['score']
+                hit_base = player.get('hit_base', False)
                 
                 row = tk.Frame(self.red_players_frame, bg = "#1a1a1a")
                 row.pack(fill = "x", pady = 3)
                 
+                # show base icon after a player hits the base
+                if hit_base and self.base_icon:
+                    icon_label = tk.Label(row, image = self.base_icon, bg = "#1a1a1a")
+                    icon_label.pack(side = "left", padx = (10, 5))
+
                 tk.Label(row, text = codename, font = ("Arial", 16), fg = "white", bg = "#1a1a1a", anchor = "e").pack(side = "left", padx = 10)
                 tk.Label(row, text = str(score), font = ("Arial", 16, "bold"), fg = "yellow", bg = "#1a1a1a", anchor = "e").pack(side = "right", padx = 10)
             
@@ -293,9 +307,15 @@ class PlayActionScreen(tk.Frame):
             for player in green_players:
                 codename = player['codename']
                 score = player['score']
+                hit_base = player.get('hit_base', False)
                 
                 row = tk.Frame(self.green_players_frame, bg = "#1a1a1a")
                 row.pack(fill = "x", pady = 3)
+
+                # show base icon after a player hits the base
+                if hit_base and self.base_icon:
+                    icon_label = tk.Label(row, image = self.base_icon, bg = "#1a1a1a")
+                    icon_label.pack(side = "left", padx = (10, 5))
                 
                 tk.Label(row, text = codename, font = ("Arial", 16), fg = "white", bg = "#1a1a1a", anchor = "w").pack(side = "left", padx = 10)
                 tk.Label(row, text = str(score), font = ("Arial", 16, "bold"), fg = "yellow", bg = "#1a1a1a", anchor = "e").pack(side = "right", padx = 10)
