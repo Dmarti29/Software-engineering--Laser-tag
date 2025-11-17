@@ -177,7 +177,14 @@ class PlayActionScreen(tk.Frame):
         except:
             pass
         
-        # Reset game state (scores back to zero)
+        # End the game first (broadcasts code 221 to stop traffic generator)
+        try:
+            requests.post(f"{self.api_url}/game/end", timeout=2)
+            logger.info("Game ended - code 221 broadcasted (stops traffic generator)")
+        except Exception as e:
+            logger.error(f"Failed to end game: {e}")
+        
+        # Then reset game state (scores back to zero)
         try:
             requests.post(f"{self.api_url}/game/reset", timeout=1)
             logger.info("Game reset - all scores cleared")
