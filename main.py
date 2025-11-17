@@ -47,8 +47,8 @@ def show_player_entry_screen(window):
         # Schedule music to start 15.4 seconds after countdown begins
         window.after(15400, start_music)
         
-        # Schedule music to stop after game ends (6 minutes + 30 seconds countdown = 390 seconds)
-        window.after(390000, stop_music)
+        # Schedule music to stop after game ends (6 minutes + 30 seconds countdown + 3.5 seconds = 393.5 seconds)
+        window.after(393500, stop_music)
         
         def show_play_action_after_countdown(window):
             # Countdown finished! Now load the play action screen first
